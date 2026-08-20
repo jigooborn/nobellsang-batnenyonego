@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>항성 분광형 AI 자동 분류</title>
+<meta name="description" content="스펙트럼 하나로 분광형·광도계급·온도·표면중력을 판정하는 딥러닝 프로그램">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif;
+    background:#0b0e1a; color:#e8eaf2; line-height:1.75;
+  }
+  .wrap { max-width:860px; margin:0 auto; padding:0 24px; }
+  header { padding:88px 0 56px; text-align:center;
+    background:radial-gradient(ellipse at 50% -20%, #1c2447 0%, #0b0e1a 70%); }
+  h1 { font-size:2.1rem; letter-spacing:-0.5px; }
+  .sub { color:#8fa3d0; margin-top:10px; font-size:1.05rem; }
+  .badges { margin-top:26px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+  .badge { background:#182042; border:1px solid #2c3a6e; border-radius:999px;
+    padding:7px 18px; font-size:0.92rem; color:#aebdf0; }
+  .badge b { color:#ffd166; font-weight:700; }
+  section { padding:44px 0; border-bottom:1px solid #1a2140; }
+  h2 { font-size:1.25rem; color:#ffd166; margin-bottom:18px; }
+  p  { color:#c6cde3; }
+  .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:14px; margin-top:8px; }
+  .card { background:#121936; border:1px solid #232d58; border-radius:12px; padding:20px 16px; text-align:center; }
+  .card .num { font-size:1.7rem; font-weight:800; color:#7db4ff; }
+  .card .lab { font-size:0.88rem; color:#93a0c8; margin-top:6px; }
+  figure { margin:22px 0 0; }
+  figure img { width:100%; border-radius:12px; border:1px solid #232d58; display:block; }
+  figcaption { font-size:0.88rem; color:#8b97bd; margin-top:10px; text-align:center; }
+  ul { list-style:none; }
+  ul li { padding-left:1.35em; position:relative; margin-bottom:10px; color:#c6cde3; }
+  ul li::before { content:"✦"; position:absolute; left:0; color:#ffd166; }
+  code, pre { font-family:Consolas,monospace; }
+  pre { background:#0f1430; border:1px solid #232d58; border-radius:10px;
+    padding:16px 18px; overflow-x:auto; color:#9fd0a8; font-size:0.92rem; margin-top:12px; }
+  .btn { display:inline-block; margin-top:20px; background:#ffd166; color:#1a1a2e;
+    font-weight:700; padding:13px 30px; border-radius:10px; text-decoration:none; }
+  .btn:hover { background:#ffde8f; }
+  .case { background:#121936; border:1px solid #232d58; border-radius:12px;
+    padding:22px 24px; margin-top:14px; }
+  .case .vs { display:flex; gap:16px; justify-content:center; align-items:center;
+    margin:14px 0 6px; flex-wrap:wrap; }
+  .tag { padding:10px 22px; border-radius:10px; font-weight:800; font-size:1.15rem; }
+  .tag.old { background:#1b2c55; color:#8fb4ff; }
+  .tag.new { background:#4a1a1a; color:#ff9d8f; }
+  .arrow { color:#66708f; font-size:1.3rem; }
+  footer { padding:44px 0 64px; text-align:center; color:#66708f; font-size:0.9rem; }
+  footer a { color:#8fa3d0; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <h1>항성 분광형 AI 자동 분류</h1>
+    <p class="sub">Stellar Spectral Classification with AI — 스펙트럼 하나로 별의 신상명세를 읽다</p>
+    <div class="badges">
+      <span class="badge">정확도 <b>97.6%</b></span>
+      <span class="badge">외부 망원경 <b>94.0%</b></span>
+      <span class="badge">학습 스펙트럼 <b>27만 개</b></span>
+      <span class="badge">SIMBAD 검토 후보 <b>75개</b></span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<section>
+  <h2>무엇을 하는 프로그램인가</h2>
+  <p>
+    항성 스펙트럼 파일(FITS/CSV)을 열면 전처리부터 판정까지 자동으로 수행하여,
+    <b>분광형(OB·A·F·G·K·M) · 광도계급(거성/주계열/백색왜성) · 유효온도 · 표면중력</b>을
+    한 번에 예측합니다. 스펙트럼 외의 어떤 정보도 사용하지 않으며, 판정의 근거가 된
+    흡수선을 스펙트럼 위에 표시해 결과를 눈으로 확인할 수 있습니다.
+  </p>
+  <div class="cards">
+    <div class="card"><div class="num">97.6%</div><div class="lab">테스트 정확도 (16,189개)<br>±1등급 99.7%</div></div>
+    <div class="card"><div class="num">97.7%</div><div class="lab">5-fold 교차검증<br>± 0.06%</div></div>
+    <div class="card"><div class="num">94.0%</div><div class="lab">외부 망원경 검증<br>VLT/X-shooter 751개</div></div>
+    <div class="card"><div class="num">1.14%</div><div class="lab">유효온도 예측 오차<br>표면중력 0.152 dex</div></div>
+  </div>
+</section>
+
+<section>
+  <h2>AI가 물리를 배웠다는 증거</h2>
+  <p>
+    모델이 예측한 온도와 표면중력만으로 별들을 배치하자, 천문학의 상징인
+    H-R도의 구조 — 주계열과 적색거성가지 — 가 그대로 나타났습니다.
+    데이터를 암기한 것이 아니라 별의 물리를 스펙트럼에서 읽어냈다는 뜻입니다.
+  </p>
+  <figure>
+    <img src="figures/2_hr_diagram.png" alt="AI 예측만으로 그린 H-R도">
+    <figcaption>AI 예측값만으로 그린 H-R도 — 주계열과 거성가지가 분리되어 재현된다</figcaption>
+  </figure>
+</section>
+
+<section>
+  <h2>100년 된 라벨의 독립 검증</h2>
+  <p>
+    천문학의 표준 참고자료인 SIMBAD의 분광형은 1890년대 사진건판 분류까지
+    거슬러 올라가는 여러 시대의 판정이 축적된 자료입니다. 본 프로그램으로
+    469개 별을 독립 재판정하고 불일치 사례를 문헌 온도로 심판하여,
+    <b>갱신 검토가 필요한 후보 75개</b>를 선별했습니다.
+  </p>
+  <div class="case">
+    <div style="text-align:center; color:#93a0c8; font-size:0.92rem;">대표 사례 — HD 338529</div>
+    <div class="vs">
+      <span class="tag old">SIMBAD 등록: B5</span>
+      <span class="arrow">→</span>
+      <span class="tag new">AI 판정: F형 (96%)</span>
+    </div>
+    <div style="text-align:center; color:#8b97bd; font-size:0.9rem;">
+      독립 문헌 실측 온도 6,165K = F형 구간 — 등록 라벨의 재검토를 시사
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>어떻게 만들었나</h2>
+  <ul>
+    <li><b>데이터</b> — LAMOST · SDSS(MaStar/SEGUE) · MILES 4개 서베이 273,301개 스펙트럼, Gaia DR3 크로스매칭 정답지 222,381행</li>
+    <li><b>전처리 9단계</b> — 진공→공기 변환, 도플러 보정, 성간소광 보정, 연속선 정규화 등</li>
+    <li><b>모델</b> — 스펙트럼 전체를 학습하는 CNN(ResNet) + 물리 지표 39개를 입력받는 MLP 앙상블</li>
+    <li><b>물리 기반 설계</b> — 빈의 변위 법칙(색지수), 사하-볼츠만 법칙(흡수선 등가폭), 압력 넓어짐(선폭→광도계급)</li>
+    <li><b>검증 4단계</b> — 홀드아웃 → 5-fold → 24만 개 전수검사 → 외부 망원경(VLT) 데이터</li>
+  </ul>
+</section>
+
+<section>
+  <h2>사용법</h2>
+  <pre>pip install -r requirements.txt
+python classify_gui_v5.py              # GUI 실행
+python classify_gui_v5.py 스펙트럼.fits # 파일 바로 분류</pre>
+  <div style="text-align:center;">
+    <a class="btn" href="https://github.com/jigooborn/nobellsang-batnenyonego">GitHub에서 코드·모델 받기 →</a>
+  </div>
+</section>
+
+</div>
+
+<footer>
+  <div class="wrap">
+    제72회 전국과학전람회 출품작 · 목천고등학교 이한결 · 맹진호 (지도교원 노민경)<br>
+    코드·모델 MIT License · 데이터는 각 서베이 기관의 라이선스를 따름
+  </div>
+</footer>
+
+</body>
+</html>
