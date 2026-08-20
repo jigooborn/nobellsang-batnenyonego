@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+outputs_preprocessed*/
+external_xsl/
+cache_*.csv
+master_catalog*.csv
+m_targets.csv
+results/
+data/v5_*
+*.fits
+*.fit
