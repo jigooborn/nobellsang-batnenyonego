@@ -51,6 +51,11 @@
     font-family:'Noto Sans KR',sans-serif; font-weight:900;
     font-size:clamp(38px, 7.2vw, 96px); line-height:1.06; letter-spacing:-.02em;
   }
+  .ai {
+    font-family:'Inter',sans-serif; font-weight:800;
+    background:linear-gradient(115deg, #fff 20%, #6ea8ff 85%);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
   .hero .sub {
     margin-top:26px; max-width:560px; color:#b9bdc6;
     font-size:clamp(14px,1.5vw,17px); line-height:1.9; font-weight:400;
@@ -166,7 +171,7 @@
 <header class="hero" id="top">
   <div class="inner">
     <div class="micro">Stellar Spectral Classification — 제72회 전국과학전람회</div>
-    <h1>피커링의 두 눈,<br>AI로 재현하다</h1>
+    <h1>피커링의 두 눈,<br><span class="ai">AI</span>로 재현하다</h1>
     <p class="sub">
       27만 개의 실제 관측 스펙트럼으로 학습한 앙상블 AI가
       별빛 하나에서 분광형과 광도계급, 온도, 표면중력을 읽어냅니다.
@@ -201,20 +206,20 @@
     </div>
 
     <div class="recheck-grid">
-      <div class="rg"><div class="n">469</div><div class="t">SIMBAD 등록 분광형과<br>대조한 별</div></div>
-      <div class="rg"><div class="n">111</div><div class="t">판정 불일치 —<br>문헌 온도로 심판</div></div>
-      <div class="rg"><div class="n">90</div><div class="t">독립 온도가<br>AI 판정을 지지</div></div>
-      <div class="rg"><div class="n">75</div><div class="t">갱신 검토 후보로<br>최종 선별된 라벨</div></div>
+      <div class="rg"><div class="n" data-count="469">469</div><div class="t">SIMBAD 등록 분광형과<br>대조한 별</div></div>
+      <div class="rg"><div class="n" data-count="111">111</div><div class="t">판정 불일치 —<br>문헌 온도로 심판</div></div>
+      <div class="rg"><div class="n" data-count="90">90</div><div class="t">독립 온도가<br>AI 판정을 지지</div></div>
+      <div class="rg"><div class="n" data-count="75">75</div><div class="t">갱신 검토 후보로<br>최종 선별된 라벨</div></div>
     </div>
   </div>
 </section>
 
 <div class="metrics">
   <div class="inner">
-    <div class="m"><div class="n">97.6%</div><div class="t">Test Accuracy · 16,189</div></div>
-    <div class="m"><div class="n">±0.06</div><div class="t">5-Fold Deviation</div></div>
-    <div class="m"><div class="n">94.0%</div><div class="t">External · VLT/X-shooter</div></div>
-    <div class="m"><div class="n">1.14%</div><div class="t">Teff Median Error</div></div>
+    <div class="m"><div class="n" data-count="97.6" data-dec="1" data-suf="%">97.6%</div><div class="t">Test Accuracy · 16,189</div></div>
+    <div class="m"><div class="n" data-count="0.06" data-dec="2" data-pre="±">±0.06</div><div class="t">5-Fold Deviation</div></div>
+    <div class="m"><div class="n" data-count="94.0" data-dec="1" data-suf="%">94.0%</div><div class="t">External · VLT/X-shooter</div></div>
+    <div class="m"><div class="n" data-count="1.14" data-dec="2" data-suf="%">1.14%</div><div class="t">Teff Median Error</div></div>
   </div>
 </div>
 
@@ -310,6 +315,37 @@ function draw(t) {
 }
 addEventListener('resize', reset);
 reset(); requestAnimationFrame(draw);
+
+// 숫자 카운트업 — 화면에 들어오는 순간 굴러가며 차오름
+const ease = t => 1 - Math.pow(1 - t, 3);
+function countUp(el) {
+  const target = parseFloat(el.dataset.count);
+  const dec = parseInt(el.dataset.dec || '0');
+  const pre = el.dataset.pre || '', suf = el.dataset.suf || '';
+  const dur = 1400, t0 = performance.now();
+  function tick(now) {
+    const p = Math.min((now - t0) / dur, 1);
+    let v = target * ease(p);
+    // 마지막 10% 전까지는 끝자리가 흔들리는 느낌
+    if (p < 0.9) v += (Math.random() - 0.5) * target * 0.02 * (1 - p);
+    v = Math.max(0, v);
+    el.textContent = pre + v.toLocaleString('en-US',
+      {minimumFractionDigits: dec, maximumFractionDigits: dec}) + suf;
+    if (p < 1) requestAnimationFrame(tick);
+    else el.textContent = pre + target.toLocaleString('en-US',
+      {minimumFractionDigits: dec, maximumFractionDigits: dec}) + suf;
+  }
+  requestAnimationFrame(tick);
+}
+const io = new IntersectionObserver(entries => {
+  for (const e of entries) {
+    if (e.isIntersecting) { countUp(e.target); io.unobserve(e.target); }
+  }
+}, {threshold: 0.55});
+document.querySelectorAll('[data-count]').forEach(el => {
+  el.textContent = (el.dataset.pre || '') + '0' + (el.dataset.suf || '');
+  io.observe(el);
+});
 </script>
 
 </body>
