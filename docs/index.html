@@ -170,7 +170,7 @@
 
 <header class="hero" id="top">
   <div class="inner">
-    <div class="micro">Stellar Spectral Classification — 제72회 전국과학전람회</div>
+    <div class="micro">항성 분광형 자동 분류 프로그램 · Stellar Spectral Classification — 제72회 전국과학전람회</div>
     <h1>피커링의 두 눈,<br><span class="ai">AI</span>로 재현하다</h1>
     <p class="sub">
       27만 개의 실제 관측 스펙트럼으로 학습한 앙상블 AI가
@@ -316,14 +316,20 @@ function draw(t) {
 addEventListener('resize', reset);
 reset(); requestAnimationFrame(draw);
 
-// 숫자 카운트업 — 화면에 들어오는 순간 굴러가며 차오름
+// 새로고침하면 항상 맨 위(히어로)부터 시작
+history.scrollRestoration = 'manual';
+scrollTo(0, 0);
+
+// 숫자 카운트업 — 화면에 들어올 때마다 굴러가며 차오름 (나갔다 오면 다시 재생)
 const ease = t => 1 - Math.pow(1 - t, 3);
 function countUp(el) {
+  const gen = el._gen = (el._gen || 0) + 1;   // 이전 애니메이션 무효화 토큰
   const target = parseFloat(el.dataset.count);
   const dec = parseInt(el.dataset.dec || '0');
   const pre = el.dataset.pre || '', suf = el.dataset.suf || '';
   const dur = 1400, t0 = performance.now();
   function tick(now) {
+    if (el._gen !== gen) return;
     const p = Math.min((now - t0) / dur, 1);
     let v = target * ease(p);
     // 마지막 10% 전까지는 끝자리가 흔들리는 느낌
@@ -337,15 +343,78 @@ function countUp(el) {
   }
   requestAnimationFrame(tick);
 }
+function resetCount(el) {
+  el._gen = (el._gen || 0) + 1;
+  el.textContent = (el.dataset.pre || '') + '0' + (el.dataset.suf || '');
+}
 const io = new IntersectionObserver(entries => {
   for (const e of entries) {
-    if (e.isIntersecting) { countUp(e.target); io.unobserve(e.target); }
+    if (e.isIntersecting) countUp(e.target);
+    else resetCount(e.target);
   }
 }, {threshold: 0.55});
 document.querySelectorAll('[data-count]').forEach(el => {
-  el.textContent = (el.dataset.pre || '') + '0' + (el.dataset.suf || '');
+  resetCount(el);
   io.observe(el);
 });
+
+// 섹션 스냅 — 구분선이 화면의 1/3 이상 넘어오면 다음 섹션으로 자동 이동,
+// 1/3 미만이면 지금 섹션으로 되돌아감 (섹션 중간에 어중간하게 멈추지 않음)
+const snapPts = () => ['#top', '#recheck', '.metrics', '#results', '.cta-sec']
+  .map(s => Math.round(document.querySelector(s).getBoundingClientRect().top + scrollY));
+let idleTimer = null, snapping = false, lastY = scrollY, dirDown = true, hold = 0;
+
+function glideTo(target) {
+  target = Math.max(0, Math.min(target,
+    document.documentElement.scrollHeight - innerHeight));
+  if (Math.abs(target - scrollY) < 8) return;
+  if (document.hidden) {  // 백그라운드 탭에선 rAF가 멈추므로 즉시 이동
+    scrollTo({top: target, behavior: 'instant'});
+    lastY = scrollY;
+    return;
+  }
+  snapping = true;
+  const start = scrollY, dist = target - start, t0 = performance.now(), dur = 600;
+  let stop = false;
+  const cancel = () => { stop = true; };
+  addEventListener('wheel', cancel, {once: true, passive: true});
+  function step(now) {
+    if (stop) { snapping = false; lastY = scrollY; return; }
+    const p = Math.min((now - t0) / dur, 1);
+    scrollTo({top: start + dist * (1 - Math.pow(1 - p, 3)), behavior: 'instant'});
+    if (p < 1) requestAnimationFrame(step);
+    else {
+      removeEventListener('wheel', cancel);
+      setTimeout(() => { snapping = false; lastY = scrollY; }, 60);
+    }
+  }
+  requestAnimationFrame(step);
+}
+
+function snapCheck() {
+  if (snapping || innerWidth < 820 || performance.now() < hold) return;
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const y = scrollY, h = innerHeight;
+  const pts = snapPts();
+  const p = pts.find(pt => pt > y + 8 && pt < y + h - 8);
+  if (p === undefined) return;               // 섹션 한가운데 — 자유 스크롤
+  const a = Math.max(0, ...pts.filter(pt => pt < p - 8));
+  const back = Math.max(a, p - h);           // 경계선을 화면 아래로 되돌리는 위치
+  if (dirDown) glideTo(y + h - p >= h / 3 ? p : back);
+  else glideTo(p - y >= h / 3 ? back : p);
+}
+
+addEventListener('scroll', () => {
+  if (snapping) return;
+  if (Math.abs(scrollY - lastY) > 1) dirDown = scrollY > lastY;
+  lastY = scrollY;
+  clearTimeout(idleTimer);
+  idleTimer = setTimeout(snapCheck, 150);
+}, {passive: true});
+
+// 내비게이션 클릭 직후엔 스냅이 개입하지 않도록 잠시 대기
+document.querySelectorAll('a[href^="#"]').forEach(a =>
+  a.addEventListener('click', () => { hold = performance.now() + 1200; }));
 </script>
 
 </body>
