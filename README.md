@@ -1,109 +1,70 @@
-# 항성 분광형 AI 자동 분류 (Stellar Spectral Classification with AI)
+# 항성 분광형 AI 자동 분류
 
-> **피커링의 두 눈, AI로 재현하다** — 항성 스펙트럼만으로 분광형(OB/A/F/G/K/M)과
-> 광도계급(거성/주계열/백색왜성), 유효온도, 표면중력을 판정하는 딥러닝 시스템
+> 스펙트럼 하나로 별의 분광형(OB·A·F·G·K·M) · 광도계급(거성/주계열/백색왜성) ·
+> 유효온도 · 표면중력을 판정하는 딥러닝 프로그램
+
+**🌐 프로젝트 소개 페이지**: https://jigooborn.github.io/nobellsang-batnenyonego/
 
 제72회 전국과학전람회 출품작 (목천고등학교 이한결·맹진호, 지도교원 노민경)
 
 ![AI 예측 H-R도](docs/figures/2_hr_diagram.png)
-
-## 개요
-
-4개 공개 분광 서베이(LAMOST DR9, SDSS MaStar DR17, SDSS SEGUE-1, MILES v9.1)의
-스펙트럼 약 27만 개로 학습한 CNN(ResNet)+MLP 앙상블 모델입니다.
-스펙트럼 외의 어떤 정보도 입력받지 않으며(실전 조건), 하나의 스펙트럼에서
-네 가지를 동시에 예측합니다.
-
-- 분광형 6분류: OB · A · F · G · K · M (교과서 온도 경계)
-- 유효온도(Teff) 회귀 / 표면중력(log g) 회귀
-- 광도계급 3분류: 거성 · 주계열 · 백색왜성
-
-또한 이 모델로 SIMBAD에 등록된 분광형을 독립 검증하여, 등록 라벨과 어긋나고
-독립 문헌 온도가 모델 판정을 지지하는 "갱신 검토 후보" 별 목록을 산출했습니다.
 
 ## 성능 (전부 학습 미사용 데이터)
 
 | 검증 | 정확도 |
 |---|---|
 | 내부 test (16,189개) | **97.6%** (±1등급 99.7%) |
-| 5-fold 교차검증 (별 그룹 단위) | **97.7 ± 0.06%** |
+| 5-fold 교차검증 | **97.7 ± 0.06%** |
 | 외부 망원경 XSL/VLT (751개) | **94.0%** (±1등급 99.6%) |
-| 유효온도 / 표면중력 | 중앙 오차 1.14% / MAE 0.152 dex |
-| 광도계급 | 96.8% |
+| 유효온도 / 표면중력 | 오차 1.14% / 0.152 dex |
 
-## 설치
-
-```bash
-pip install numpy scipy pandas astropy scikit-learn matplotlib torch
-```
-
-PyTorch는 GPU 사용 시 CUDA 빌드를 설치하세요 (CPU로도 추론 가능).
-
-## 사용법
-
-### GUI 분류 프로그램
+## 빠른 시작
 
 ```bash
-python classify_gui_v5.py                # GUI 실행
-python classify_gui_v5.py 스펙트럼.fits   # 파일 바로 열기
+pip install -r requirements.txt
+python classify_gui_v5.py samples/spec_401011246.fits
 ```
 
-- 지원 입력: LAMOST/SDSS/MaStar/MILES FITS, 일반 FITS(자동 감지), CSV/TXT(파장·플럭스 2열), 폴더 일괄
-- 시선속도·성간소광량을 스펙트럼에서 자동 추정
-- 판정 근거 흡수선 표시, SIMBAD 실시간 대조, 특이천체 경고
+동봉된 샘플로 바로 테스트할 수 있습니다 (`samples/`):
 
-### 일괄 분류 (CLI)
+| 파일 | 정체 | 볼거리 |
+|---|---|---|
+| `spec_525402055.fits` | LAMOST 고온성 (실측 30,448K) | OB형 + He II 검출 → "O급 가능성" 표시 |
+| `spec_401011246.fits` | LAMOST G형 주계열 | 태양형 스펙트럼, G밴드·Mg b 근거선 |
+| `spec_823208221.fits` | LAMOST M형 (3,406K) | TiO 분자띠가 지배하는 저온성 |
+| `s0298.fits` | MILES HD 338529 | SIMBAD에 'B5'로 등록된 별 — AI는 F형 판정 (라벨 재검토 사례) |
 
-```bash
-python classify_gui_v5.py 폴더경로 --batch 결과.csv
-```
-
-## 재현 (학습부터)
-
-원본 스펙트럼(약 15GB)은 각 서베이 아카이브에서 받아야 합니다. 파이프라인 순서:
-
-```
-build_av_v5.py            # Gaia/StarHorse에서 성간소광량 확보
-step1_v5.py all           # 전처리 (preprocess_core.py 사용)
-prep_dataset_v5.py        # 학습셋 생성 (별 그룹 단위 분할)
-train_v5.py               # 학습 (RTX 5060 Ti 8GB 기준 약 1.5시간)
-eval_v5.py                # 평가 + 상관 플롯
-kfold_v5.py               # 5-fold 교차검증
-xsl_validate.py --all     # 외부(XSL) 검증
-simbad_recheck.py         # SIMBAD 라벨 독립 검증
-```
-
-모든 난수 시드는 42로 고정되어 있으며, 전처리는 `preprocess_core.py` 단일
-모듈을 학습·추론이 공유합니다.
+GUI에서는 파일/폴더 열기, 판정 근거 흡수선 표시, 시선속도·성간소광 자동 추정,
+SIMBAD 실시간 대조, 폴더 일괄 분류(CSV)가 가능합니다.
 
 ## 저장소 구성
 
 ```
-preprocess_core.py     전처리·피처 추출 공통 모듈 (학습·GUI 공유)
-classify_gui_v5.py     GUI 분류 프로그램
-train_v5.py            모델 정의(SpectralResNetV5, FeatureMLPV5) + 학습
-models/                학습된 가중치 (resnet_v5.pth, mlp_v5.pth)
-data/                  정규화 통계 (추론에 필요)
+classify_gui_v5.py    분류 프로그램 (GUI + CLI)
+preprocess_core.py    전처리·피처 추출 모듈
+train_v5.py           모델 정의 + 학습 스크립트
+models/               학습된 가중치 (CNN 3.4MB + MLP 0.7MB)
+data/                 정규화 통계 (추론에 필요)
+samples/              테스트용 스펙트럼 4개
+pipeline/             연구 전체 재현용 스크립트 (선택)
 ```
 
-## 데이터 출처 및 고지
+## 원본 데이터 받는 곳
 
-본 저장소는 코드와 학습된 모델만 포함합니다. 스펙트럼 원본과 카탈로그는
-각 기관의 라이선스를 따르며 아래에서 받을 수 있습니다.
+본 저장소는 코드·모델·샘플만 포함합니다. 전체 데이터는 각 기관에서 무료로 받을 수 있습니다.
 
-- LAMOST DR9 — 중국과학원 국가천문대 (www.lamost.org)
-- SDSS MaStar DR17 / SEGUE-1 — Sloan Digital Sky Survey (www.sdss.org)
-- MILES v9.1 — IAC (miles.iac.es)
-- XSL DR3 — ESO / CDS (Verro et al. 2022, A&A 660, A34)
-- Gaia DR3 소광량 — Gaia Collaboration / GSP-Phot (Andrae et al. 2023)
-- StarHorse 2021 — Anders et al. 2022, A&A 658, A91
-- SIMBAD — CDS, Strasbourg (Wenger et al. 2000)
+| 데이터 | 링크 |
+|---|---|
+| LAMOST DR9 저분해능 스펙트럼 | https://www.lamost.org/dr9/ |
+| SDSS MaStar 항성 라이브러리 (DR17) | https://www.sdss4.org/dr17/mastar/ |
+| SDSS SEGUE 스펙트럼 | https://www.sdss4.org/dr17/spectro/ |
+| MILES 라이브러리 v9.1 | http://miles.iac.es/ |
+| XSL DR3 (외부 검증용) | https://cdsarc.cds.unistra.fr/viz-bin/cat/J/A+A/660/A34 |
+| Gaia DR3 소광량 (GSP-Phot) | https://gea.esac.esa.int/archive/ |
+| SIMBAD | https://simbad.cds.unistra.fr/ |
 
-주요 방법 참고: Liu et al. 2015 (RAA 15, 1137 — 흡수선 지표 정의),
-Xiang et al. 2022 (A&A 662, A66 — 고온별 라벨), He et al. 2016 (ResNet),
-Savitzky & Golay 1964, Cardelli et al. 1989, Morton 1991.
+샘플 FITS의 저작권은 각 서베이(LAMOST DR9, MILES)에 있으며 테스트 용도로만 동봉했습니다.
 
 ## 라이선스
 
-MIT License — 코드와 모델 가중치에 적용됩니다. 데이터는 각 원 기관의
-라이선스를 따릅니다.
+MIT License — 코드와 모델 가중치에 적용. 데이터는 각 원 기관의 라이선스를 따릅니다.

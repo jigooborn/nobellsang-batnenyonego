@@ -9,3 +9,5 @@ results/
 data/v5_*
 *.fits
 *.fit
+
+!samples/*.fits

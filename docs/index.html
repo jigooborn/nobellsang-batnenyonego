@@ -3,150 +3,284 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>항성 분광형 AI 자동 분류</title>
-<meta name="description" content="스펙트럼 하나로 분광형·광도계급·온도·표면중력을 판정하는 딥러닝 프로그램">
+<title>STELLAR AI — 항성 분광형 자동 분류</title>
+<meta name="description" content="스펙트럼 하나로 별의 신상명세를 읽는 딥러닝 시스템">
 <style>
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body {
-    font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif;
-    background:#0b0e1a; color:#e8eaf2; line-height:1.75;
+  :root {
+    --bg:#000; --fg:#fff; --dim:#9aa3b2; --line:rgba(255,255,255,.14);
+    --accent:#4f8cff;
   }
-  .wrap { max-width:860px; margin:0 auto; padding:0 24px; }
-  header { padding:88px 0 56px; text-align:center;
-    background:radial-gradient(ellipse at 50% -20%, #1c2447 0%, #0b0e1a 70%); }
-  h1 { font-size:2.1rem; letter-spacing:-0.5px; }
-  .sub { color:#8fa3d0; margin-top:10px; font-size:1.05rem; }
-  .badges { margin-top:26px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
-  .badge { background:#182042; border:1px solid #2c3a6e; border-radius:999px;
-    padding:7px 18px; font-size:0.92rem; color:#aebdf0; }
-  .badge b { color:#ffd166; font-weight:700; }
-  section { padding:44px 0; border-bottom:1px solid #1a2140; }
-  h2 { font-size:1.25rem; color:#ffd166; margin-bottom:18px; }
-  p  { color:#c6cde3; }
-  .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:14px; margin-top:8px; }
-  .card { background:#121936; border:1px solid #232d58; border-radius:12px; padding:20px 16px; text-align:center; }
-  .card .num { font-size:1.7rem; font-weight:800; color:#7db4ff; }
-  .card .lab { font-size:0.88rem; color:#93a0c8; margin-top:6px; }
-  figure { margin:22px 0 0; }
-  figure img { width:100%; border-radius:12px; border:1px solid #232d58; display:block; }
-  figcaption { font-size:0.88rem; color:#8b97bd; margin-top:10px; text-align:center; }
-  ul { list-style:none; }
-  ul li { padding-left:1.35em; position:relative; margin-bottom:10px; color:#c6cde3; }
-  ul li::before { content:"✦"; position:absolute; left:0; color:#ffd166; }
-  code, pre { font-family:Consolas,monospace; }
-  pre { background:#0f1430; border:1px solid #232d58; border-radius:10px;
-    padding:16px 18px; overflow-x:auto; color:#9fd0a8; font-size:0.92rem; margin-top:12px; }
-  .btn { display:inline-block; margin-top:20px; background:#ffd166; color:#1a1a2e;
-    font-weight:700; padding:13px 30px; border-radius:10px; text-decoration:none; }
-  .btn:hover { background:#ffde8f; }
-  .case { background:#121936; border:1px solid #232d58; border-radius:12px;
-    padding:22px 24px; margin-top:14px; }
-  .case .vs { display:flex; gap:16px; justify-content:center; align-items:center;
-    margin:14px 0 6px; flex-wrap:wrap; }
-  .tag { padding:10px 22px; border-radius:10px; font-weight:800; font-size:1.15rem; }
-  .tag.old { background:#1b2c55; color:#8fb4ff; }
-  .tag.new { background:#4a1a1a; color:#ff9d8f; }
-  .arrow { color:#66708f; font-size:1.3rem; }
-  footer { padding:44px 0 64px; text-align:center; color:#66708f; font-size:0.9rem; }
-  footer a { color:#8fa3d0; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body {
+    background:var(--bg); color:var(--fg);
+    font-family:'Segoe UI','Malgun Gothic','Apple SD Gothic Neo',sans-serif;
+    -webkit-font-smoothing:antialiased; overflow-x:hidden;
+  }
+  ::selection { background:var(--accent); }
+
+  /* ── 별 배경 ── */
+  #stars { position:fixed; inset:0; z-index:0; pointer-events:none; }
+  .content { position:relative; z-index:1; }
+
+  /* ── 상단 네비 ── */
+  nav {
+    position:fixed; top:0; left:0; right:0; z-index:10;
+    display:flex; justify-content:space-between; align-items:center;
+    padding:22px 5vw;
+    background:linear-gradient(180deg, rgba(0,0,0,.75), transparent);
+  }
+  nav .logo { font-weight:900; letter-spacing:4px; font-size:.95rem; }
+  nav .logo span { color:var(--accent); }
+  nav a { color:var(--fg); text-decoration:none; font-size:.8rem;
+    letter-spacing:2px; margin-left:28px; opacity:.75; }
+  nav a:hover { opacity:1; }
+  nav .links { display:none; }
+  @media (min-width:720px){ nav .links { display:block; } }
+
+  /* ── 히어로 ── */
+  .hero {
+    min-height:100vh; display:flex; flex-direction:column;
+    justify-content:center; align-items:center; text-align:center;
+    padding:0 6vw;
+    background:radial-gradient(ellipse 90% 55% at 50% 115%, rgba(64,110,255,.32), transparent 60%);
+  }
+  .hero .kicker {
+    letter-spacing:6px; font-size:clamp(.7rem,1.4vw,.85rem);
+    color:var(--dim); text-transform:uppercase; margin-bottom:26px;
+  }
+  .hero h1 {
+    font-size:clamp(2.4rem,7.5vw,5.4rem); font-weight:900;
+    letter-spacing:-1px; line-height:1.12;
+  }
+  .hero h1 .blue { color:var(--accent); }
+  .hero p {
+    margin-top:26px; color:var(--dim); font-size:clamp(1rem,2vw,1.2rem);
+    max-width:620px; line-height:1.8;
+  }
+  .hero .cta { margin-top:44px; display:flex; gap:16px; flex-wrap:wrap; justify-content:center; }
+  .btn {
+    display:inline-block; padding:16px 42px; text-decoration:none;
+    font-weight:700; letter-spacing:2px; font-size:.85rem;
+    border:1.5px solid var(--fg); color:var(--fg);
+    transition:.25s; text-transform:uppercase;
+  }
+  .btn:hover { background:var(--fg); color:#000; }
+  .btn.fill { background:var(--fg); color:#000; }
+  .btn.fill:hover { background:var(--accent); border-color:var(--accent); color:#fff; }
+  .scroll-hint { position:absolute; bottom:34px; left:50%; transform:translateX(-50%);
+    color:var(--dim); font-size:1.5rem; animation:bob 2s infinite; }
+  @keyframes bob { 50% { transform:translate(-50%,10px); } }
+  .hero-wrap { position:relative; }
+
+  /* ── 통계 스트립 ── */
+  .stats {
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+    border-top:1px solid var(--line); border-bottom:1px solid var(--line);
+  }
+  .stat { padding:56px 20px; text-align:center; border-right:1px solid var(--line); }
+  .stat:last-child { border-right:none; }
+  .stat .n { font-size:clamp(2.2rem,4.5vw,3.4rem); font-weight:900; }
+  .stat .n em { font-style:normal; color:var(--accent); }
+  .stat .l { margin-top:10px; color:var(--dim); font-size:.85rem; letter-spacing:1.5px; }
+
+  /* ── 공통 섹션 ── */
+  section { padding:110px 6vw; max-width:1200px; margin:0 auto; }
+  .label { letter-spacing:5px; font-size:.75rem; color:var(--accent);
+    text-transform:uppercase; font-weight:700; }
+  h2 { font-size:clamp(1.7rem,4vw,2.7rem); font-weight:900; margin:16px 0 22px;
+    letter-spacing:-.5px; line-height:1.25; }
+  .lead { color:var(--dim); font-size:1.05rem; line-height:1.9; max-width:680px; }
+  .two { display:grid; gap:48px; align-items:center; }
+  @media (min-width:900px){ .two { grid-template-columns:1fr 1fr; } }
+  .shot { border:1px solid var(--line); width:100%; display:block; background:#fff; }
+
+  /* ── 미션(제작과정) 타임라인 ── */
+  .steps { margin-top:40px; display:grid; gap:0; }
+  .step { display:grid; grid-template-columns:70px 1fr; gap:20px;
+    padding:26px 0; border-top:1px solid var(--line); }
+  .step .no { font-size:1.6rem; font-weight:900; color:var(--accent); }
+  .step h3 { font-size:1.05rem; letter-spacing:1px; margin-bottom:6px; }
+  .step p { color:var(--dim); font-size:.95rem; line-height:1.75; }
+
+  /* ── 재검증 사례 ── */
+  .case {
+    margin-top:40px; border:1px solid var(--line);
+    display:grid; grid-template-columns:1fr; text-align:center;
+  }
+  @media (min-width:720px){ .case { grid-template-columns:1fr 1fr 1fr; } }
+  .case > div { padding:44px 24px; border-bottom:1px solid var(--line); }
+  @media (min-width:720px){
+    .case > div { border-bottom:none; border-right:1px solid var(--line); }
+    .case > div:last-child { border-right:none; }
+  }
+  .case .t { color:var(--dim); font-size:.8rem; letter-spacing:2px; text-transform:uppercase; }
+  .case .v { font-size:2.2rem; font-weight:900; margin:14px 0 8px; }
+  .case .d { color:var(--dim); font-size:.85rem; }
+
+  /* ── 푸터 ── */
+  footer { border-top:1px solid var(--line); padding:60px 6vw; text-align:center;
+    color:var(--dim); font-size:.85rem; line-height:2; }
+  footer a { color:#c9d4e8; }
 </style>
 </head>
 <body>
 
-<header>
-  <div class="wrap">
-    <h1>항성 분광형 AI 자동 분류</h1>
-    <p class="sub">Stellar Spectral Classification with AI — 스펙트럼 하나로 별의 신상명세를 읽다</p>
-    <div class="badges">
-      <span class="badge">정확도 <b>97.6%</b></span>
-      <span class="badge">외부 망원경 <b>94.0%</b></span>
-      <span class="badge">학습 스펙트럼 <b>27만 개</b></span>
-      <span class="badge">SIMBAD 검토 후보 <b>75개</b></span>
+<canvas id="stars"></canvas>
+
+<div class="content">
+
+<nav>
+  <div class="logo">STELLAR <span>AI</span></div>
+  <div class="links">
+    <a href="#mission">MISSION</a>
+    <a href="#results">RESULTS</a>
+    <a href="#recheck">RECHECK</a>
+    <a href="https://github.com/jigooborn/nobellsang-batnenyonego">GITHUB</a>
+  </div>
+</nav>
+
+<div class="hero-wrap">
+  <header class="hero">
+    <div class="kicker">Stellar Spectral Classification · 제72회 전국과학전람회</div>
+    <h1>별빛 하나로,<br>별의 <span class="blue">신상명세</span>를 읽다</h1>
+    <p>
+      27만 개의 실제 관측 스펙트럼으로 학습한 AI가
+      분광형 · 광도계급 · 온도 · 표면중력을 한 번에 판정합니다.
+      그리고 100년간 축적된 천문 데이터베이스를 다시 점검합니다.
+    </p>
+    <div class="cta">
+      <a class="btn fill" href="https://github.com/jigooborn/nobellsang-batnenyonego">프로그램 받기</a>
+      <a class="btn" href="#mission">더 알아보기</a>
     </div>
-  </div>
-</header>
+  </header>
+  <div class="scroll-hint">▾</div>
+</div>
 
-<div class="wrap">
+<div class="stats">
+  <div class="stat"><div class="n">97.6<em>%</em></div><div class="l">분류 정확도 · TEST 16,189</div></div>
+  <div class="stat"><div class="n">94.0<em>%</em></div><div class="l">외부 망원경 검증 · VLT</div></div>
+  <div class="stat"><div class="n">27<em>만</em></div><div class="l">학습 스펙트럼</div></div>
+  <div class="stat"><div class="n">75<em>개</em></div><div class="l">SIMBAD 갱신 검토 후보</div></div>
+</div>
 
-<section>
-  <h2>무엇을 하는 프로그램인가</h2>
-  <p>
-    항성 스펙트럼 파일(FITS/CSV)을 열면 전처리부터 판정까지 자동으로 수행하여,
-    <b>분광형(OB·A·F·G·K·M) · 광도계급(거성/주계열/백색왜성) · 유효온도 · 표면중력</b>을
-    한 번에 예측합니다. 스펙트럼 외의 어떤 정보도 사용하지 않으며, 판정의 근거가 된
-    흡수선을 스펙트럼 위에 표시해 결과를 눈으로 확인할 수 있습니다.
+<section id="mission">
+  <div class="label">Mission</div>
+  <h2>스펙트럼만으로 판정한다</h2>
+  <p class="lead">
+    FITS 파일을 열면 전처리부터 판정까지 자동으로 진행됩니다.
+    외부 정보는 일절 사용하지 않습니다 — 시선속도와 성간소광량까지
+    스펙트럼 스스로에게서 알아냅니다. 판정의 근거가 된 흡수선은
+    화면에 붉게 표시되어, AI의 결정을 눈으로 검증할 수 있습니다.
   </p>
-  <div class="cards">
-    <div class="card"><div class="num">97.6%</div><div class="lab">테스트 정확도 (16,189개)<br>±1등급 99.7%</div></div>
-    <div class="card"><div class="num">97.7%</div><div class="lab">5-fold 교차검증<br>± 0.06%</div></div>
-    <div class="card"><div class="num">94.0%</div><div class="lab">외부 망원경 검증<br>VLT/X-shooter 751개</div></div>
-    <div class="card"><div class="num">1.14%</div><div class="lab">유효온도 예측 오차<br>표면중력 0.152 dex</div></div>
+  <div class="steps">
+    <div class="step"><div class="no">01</div><div>
+      <h3>데이터 — 273,301개 스펙트럼</h3>
+      <p>LAMOST · SDSS(MaStar/SEGUE) · MILES 4개 국제 서베이. Gaia DR3 크로스매칭으로 같은 별을 그룹화한 정답지 222,381행.</p>
+    </div></div>
+    <div class="step"><div class="no">02</div><div>
+      <h3>전처리 9단계</h3>
+      <p>진공→공기 파장 변환, 도플러 보정, 성간소광 보정, 연속선 정규화 — 물리 변수를 통제해 별의 본모습만 남깁니다.</p>
+    </div></div>
+    <div class="step"><div class="no">03</div><div>
+      <h3>두 개의 눈 — CNN + MLP 앙상블</h3>
+      <p>스펙트럼 전체를 학습하는 CNN(ResNet)과 물리 지표 39개(빈의 변위 법칙 · 사하-볼츠만 · 압력 넓어짐)를 입력받는 MLP. 두 판정이 어긋나면 특이 천체 경고.</p>
+    </div></div>
+    <div class="step"><div class="no">04</div><div>
+      <h3>검증 4단계</h3>
+      <p>홀드아웃 → 5-fold 교차검증(97.7±0.06%) → 24만 개 전수검사 → 학습에 쓰지 않은 별도 망원경(VLT/X-shooter) 데이터 94.0%.</p>
+    </div></div>
   </div>
 </section>
 
-<section>
+<section id="results">
+  <div class="label">Results</div>
   <h2>AI가 물리를 배웠다는 증거</h2>
-  <p>
-    모델이 예측한 온도와 표면중력만으로 별들을 배치하자, 천문학의 상징인
-    H-R도의 구조 — 주계열과 적색거성가지 — 가 그대로 나타났습니다.
-    데이터를 암기한 것이 아니라 별의 물리를 스펙트럼에서 읽어냈다는 뜻입니다.
-  </p>
-  <figure>
-    <img src="figures/2_hr_diagram.png" alt="AI 예측만으로 그린 H-R도">
-    <figcaption>AI 예측값만으로 그린 H-R도 — 주계열과 거성가지가 분리되어 재현된다</figcaption>
-  </figure>
+  <div class="two">
+    <p class="lead">
+      모델이 예측한 온도와 표면중력만으로 별들을 배치하자,
+      천문학의 상징인 H-R도의 구조 — 주계열과 적색거성가지 — 가
+      그대로 나타났습니다. 데이터를 암기한 것이 아니라
+      별의 물리를 스펙트럼에서 읽어냈다는 뜻입니다.
+    </p>
+    <img class="shot" src="figures/2_hr_diagram.png" alt="AI 예측만으로 그린 H-R도">
+  </div>
 </section>
 
-<section>
-  <h2>100년 된 라벨의 독립 검증</h2>
-  <p>
-    천문학의 표준 참고자료인 SIMBAD의 분광형은 1890년대 사진건판 분류까지
-    거슬러 올라가는 여러 시대의 판정이 축적된 자료입니다. 본 프로그램으로
-    469개 별을 독립 재판정하고 불일치 사례를 문헌 온도로 심판하여,
-    <b>갱신 검토가 필요한 후보 75개</b>를 선별했습니다.
+<section id="recheck">
+  <div class="label">Recheck</div>
+  <h2>100년의 기록을, 오늘의 눈으로</h2>
+  <p class="lead">
+    천문학의 표준 참고자료 SIMBAD의 분광형은 1890년대 사진건판 분류까지
+    거슬러 올라가는 소중한 축적 자료입니다. 본 프로그램은 469개 별을 독립
+    재판정하고 불일치를 문헌 온도로 심판하여, 갱신 검토가 필요한 후보
+    75개를 선별했습니다. 대표 사례 —
   </p>
   <div class="case">
-    <div style="text-align:center; color:#93a0c8; font-size:0.92rem;">대표 사례 — HD 338529</div>
-    <div class="vs">
-      <span class="tag old">SIMBAD 등록: B5</span>
-      <span class="arrow">→</span>
-      <span class="tag new">AI 판정: F형 (96%)</span>
+    <div>
+      <div class="t">SIMBAD 등록</div>
+      <div class="v" style="color:#7db4ff">B5</div>
+      <div class="d">과거 문헌 기반 · 15,000K급 구간</div>
     </div>
-    <div style="text-align:center; color:#8b97bd; font-size:0.9rem;">
-      독립 문헌 실측 온도 6,165K = F형 구간 — 등록 라벨의 재검토를 시사
+    <div>
+      <div class="t">AI 판정 — HD 338529</div>
+      <div class="v" style="color:#ff8f7d">F형</div>
+      <div class="d">신뢰도 96% · 예측 6,523K</div>
+    </div>
+    <div>
+      <div class="t">독립 문헌 실측 온도</div>
+      <div class="v">6,165K</div>
+      <div class="d">= F형 구간 → AI 판정 지지</div>
     </div>
   </div>
 </section>
 
-<section>
-  <h2>어떻게 만들었나</h2>
-  <ul>
-    <li><b>데이터</b> — LAMOST · SDSS(MaStar/SEGUE) · MILES 4개 서베이 273,301개 스펙트럼, Gaia DR3 크로스매칭 정답지 222,381행</li>
-    <li><b>전처리 9단계</b> — 진공→공기 변환, 도플러 보정, 성간소광 보정, 연속선 정규화 등</li>
-    <li><b>모델</b> — 스펙트럼 전체를 학습하는 CNN(ResNet) + 물리 지표 39개를 입력받는 MLP 앙상블</li>
-    <li><b>물리 기반 설계</b> — 빈의 변위 법칙(색지수), 사하-볼츠만 법칙(흡수선 등가폭), 압력 넓어짐(선폭→광도계급)</li>
-    <li><b>검증 4단계</b> — 홀드아웃 → 5-fold → 24만 개 전수검사 → 외부 망원경(VLT) 데이터</li>
-  </ul>
-</section>
-
-<section>
-  <h2>사용법</h2>
-  <pre>pip install -r requirements.txt
-python classify_gui_v5.py              # GUI 실행
-python classify_gui_v5.py 스펙트럼.fits # 파일 바로 분류</pre>
-  <div style="text-align:center;">
-    <a class="btn" href="https://github.com/jigooborn/nobellsang-batnenyonego">GitHub에서 코드·모델 받기 →</a>
+<section style="text-align:center;">
+  <div class="label">Open Source</div>
+  <h2>직접 실행해 보세요</h2>
+  <p class="lead" style="margin:0 auto;">
+    코드 · 학습된 모델 · 테스트용 스펙트럼 4개가 공개되어 있습니다.
+    설치 후 한 줄이면 첫 별을 분류할 수 있습니다.
+  </p>
+  <div class="cta" style="margin-top:36px; display:flex; gap:16px; justify-content:center; flex-wrap:wrap;">
+    <a class="btn fill" href="https://github.com/jigooborn/nobellsang-batnenyonego">GITHUB →</a>
   </div>
 </section>
+
+<footer>
+  제72회 전국과학전람회 출품작 · 목천고등학교 이한결 · 맹진호 (지도교원 노민경)<br>
+  코드·모델 MIT License · 데이터: LAMOST / SDSS / MILES / XSL / Gaia / SIMBAD (각 기관 라이선스)
+</footer>
 
 </div>
 
-<footer>
-  <div class="wrap">
-    제72회 전국과학전람회 출품작 · 목천고등학교 이한결 · 맹진호 (지도교원 노민경)<br>
-    코드·모델 MIT License · 데이터는 각 서베이 기관의 라이선스를 따름
-  </div>
-</footer>
+<script>
+// 별 배경 — 미세하게 깜빡이는 정적 별밭
+const cv = document.getElementById('stars'), cx = cv.getContext('2d');
+let stars = [];
+function reset() {
+  cv.width = innerWidth; cv.height = innerHeight;
+  const n = Math.floor(innerWidth * innerHeight / 5000);
+  stars = Array.from({length:n}, () => ({
+    x: Math.random()*cv.width, y: Math.random()*cv.height,
+    r: Math.random()*1.15 + 0.15,
+    p: Math.random()*Math.PI*2,
+    s: 0.15 + Math.random()*0.6
+  }));
+}
+function draw(t) {
+  cx.clearRect(0,0,cv.width,cv.height);
+  for (const st of stars) {
+    const a = 0.28 + 0.5*Math.abs(Math.sin(st.p + t*0.00045*st.s));
+    cx.globalAlpha = a;
+    cx.fillStyle = '#fff';
+    cx.beginPath(); cx.arc(st.x, st.y, st.r, 0, 7); cx.fill();
+  }
+  requestAnimationFrame(draw);
+}
+addEventListener('resize', reset);
+reset(); requestAnimationFrame(draw);
+</script>
 
 </body>
 </html>
