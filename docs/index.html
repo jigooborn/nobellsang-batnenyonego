@@ -27,11 +27,17 @@
     padding:26px 4vw;
     background:linear-gradient(180deg, rgba(0,0,0,.85), transparent);
   }
-  .logo { font-weight:800; letter-spacing:.34em; font-size:15px; text-decoration:none; }
+  .logo {
+    display:flex; align-items:center; color:#fff; text-decoration:none;
+    transition:opacity .25s;
+  }
+  .logo:hover { opacity:.65; }
+  .logo svg { width:30px; height:30px; display:block; }
   .coords {
     font-family:'Inter',monospace; font-size:10px; font-weight:600;
     letter-spacing:.22em; color:var(--dim); white-space:nowrap;
   }
+  @media (max-width:560px){ .coords { font-size:8.5px; letter-spacing:.12em; } }
   .nav-links { display:none; gap:34px; }
   @media (min-width:820px){ .nav-links { display:flex; } }
   .nav-links a {
@@ -163,8 +169,16 @@
 <div class="z">
 
 <nav>
-  <a class="logo" href="#top">JIGOOBORN</a>
-  <div class="coords">36.7819° N &nbsp;127.2326° E — MOKCHEON</div>
+  <a class="logo" href="#top" aria-label="JIGOOBORN">
+    <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="4.2"
+         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="26" cy="37" r="17"/>
+      <path d="M13 55 C 16 36, 30 19, 54 8"/>
+      <path d="M13 55 C 27 47, 43 30, 54 8"/>
+      <path d="M40 10 L 54 8 L 52 22"/>
+    </svg>
+  </a>
+  <div class="coords">36.7819° N &nbsp;127.2326° E — MOKCHEON, JIGOOBORN</div>
   <div class="nav-links">
     <a href="#recheck">Recheck</a>
     <a href="#mission">Mission</a>
