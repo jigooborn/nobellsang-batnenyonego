@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
 <style>
-  :root { --line:rgba(255,255,255,.16); --dim:#8b8f98; }
+  :root { --line:rgba(255,255,255,.15); --dim:#8b8f98; --faint:#5c6069; }
   * { margin:0; padding:0; box-sizing:border-box; }
   html { scroll-behavior:smooth; }
   body {
@@ -25,56 +25,80 @@
   nav {
     position:fixed; top:0; left:0; right:0; z-index:20;
     display:flex; align-items:center; justify-content:space-between;
-    gap:20px; padding:22px 4vw;
-    background:linear-gradient(180deg, rgba(0,0,0,.85), transparent);
+    gap:20px; padding:20px 4vw;
+    background:linear-gradient(180deg, rgba(0,0,0,.88), transparent);
   }
   .logo { display:flex; align-items:center; color:#fff; text-decoration:none; transition:opacity .25s; }
-  .logo:hover { opacity:.65; }
-  .logo img { width:34px; height:34px; display:block; }
+  .logo:hover { opacity:.6; }
+  .logo img { width:32px; height:32px; display:block; }
   .coords {
     font-family:'Inter',monospace; font-size:10px; font-weight:600;
     letter-spacing:.22em; color:var(--dim); white-space:nowrap;
   }
-  @media (max-width:560px){ .coords { font-size:8.5px; letter-spacing:.12em; } }
-  .nav-links { display:none; gap:34px; }
-  @media (min-width:820px){ .nav-links { display:flex; } }
+  @media (max-width:620px){ .coords { font-size:8px; letter-spacing:.1em; } }
+  .nav-links { display:none; gap:30px; }
+  @media (min-width:900px){ .nav-links { display:flex; } }
   .nav-links a {
-    font-size:11px; font-weight:600; letter-spacing:.22em; text-transform:uppercase;
+    font-size:11px; font-weight:600; letter-spacing:.2em; text-transform:uppercase;
     text-decoration:none; color:#cfd2d8; padding-bottom:4px;
     border-bottom:1px solid transparent; transition:.2s;
   }
   .nav-links a:hover { color:#fff; border-bottom-color:#fff; }
 
-  /* ── 화면 한 장 = 한 섹션 ── */
+  /* ── 진행 표시줄 ── */
+  .progress {
+    position:fixed; top:0; left:0; height:2px; z-index:30;
+    background:linear-gradient(90deg,#6ea8ff,#fff); width:0; transition:width .18s linear;
+  }
+
+  /* ── 한 섹션 = 한 화면 ── */
   .panel {
     position:relative;
     min-height:100vh; min-height:100svh;
     display:flex; flex-direction:column; justify-content:center;
-    padding:clamp(84px,12vh,132px) 4vw clamp(50px,8vh,88px);
+    padding:clamp(80px,11vh,124px) 4vw clamp(46px,7vh,80px);
   }
   .panel + .panel { border-top:1px solid var(--line); }
   .inner { width:100%; max-width:1280px; margin:0 auto; }
 
   .micro {
-    font-size:11px; font-weight:600; letter-spacing:.28em;
+    font-size:10.5px; font-weight:600; letter-spacing:.28em;
     text-transform:uppercase; color:var(--dim);
-    margin-bottom:clamp(10px,2vh,20px);
+    margin-bottom:clamp(8px,1.6vh,16px);
   }
   h2 {
     font-family:'Noto Sans KR',sans-serif; font-weight:900;
-    font-size:clamp(24px,2.6vw + .8vh,44px); letter-spacing:-.02em; line-height:1.2;
-    margin:0 0 clamp(12px,2.2vh,22px);
+    font-size:clamp(23px,2.4vw + .8vh,42px); letter-spacing:-.02em; line-height:1.22;
+    margin:0 0 clamp(10px,1.8vh,18px);
   }
   .lead {
-    color:#b9bdc6; font-size:clamp(13px,.9vw + .3vh,15.5px);
-    line-height:1.78; max-width:640px;
+    color:#b9bdc6; font-size:clamp(12.5px,.85vw + .3vh,15px);
+    line-height:1.78; max-width:660px;
+  }
+  .note { color:var(--faint); font-size:clamp(10.5px,.7vw,12px); letter-spacing:.04em; line-height:1.6; }
+
+  /* 스크롤 등장 애니메이션 */
+  [data-reveal] {
+    opacity:0; transform:translateY(22px);
+    transition:opacity .75s cubic-bezier(.16,.84,.44,1),
+               transform .75s cubic-bezier(.16,.84,.44,1);
+  }
+  [data-reveal].in { opacity:1; transform:none; }
+  @media (prefers-reduced-motion: reduce){
+    [data-reveal] { opacity:1; transform:none; transition:none; }
   }
 
+  /* 그림 — 배경이 투명해 검은 화면에 그대로 얹힘 */
+  .fig { width:100%; }
+  .fig img { width:100%; display:block; object-fit:contain; }
+  .fig.tall img { max-height:min(54vh,530px); margin:0 auto; width:auto; max-width:100%; }
+  .fig.wide img { max-height:min(45vh,460px); margin:0 auto; width:auto; max-width:100%; }
+
   /* ── HERO ── */
-  .hero { justify-content:flex-end; padding-bottom:clamp(64px,12vh,140px); }
+  .hero { justify-content:flex-end; padding-bottom:clamp(60px,11vh,132px); }
   .hero h1 {
     font-family:'Noto Sans KR',sans-serif; font-weight:900;
-    font-size:clamp(36px,6.6vw,92px); line-height:1.06; letter-spacing:-.02em;
+    font-size:clamp(34px,6.4vw,90px); line-height:1.06; letter-spacing:-.02em;
   }
   .ai {
     font-family:'Inter',sans-serif; font-weight:800;
@@ -82,104 +106,131 @@
     -webkit-background-clip:text; background-clip:text; color:transparent;
   }
   .hero .sub {
-    margin-top:clamp(16px,2.6vh,26px); max-width:560px; color:#b9bdc6;
-    font-size:clamp(13px,1.4vw,17px); line-height:1.85;
+    margin-top:clamp(14px,2.4vh,24px); max-width:560px; color:#b9bdc6;
+    font-size:clamp(13px,1.35vw,16.5px); line-height:1.85;
   }
-  .actions { margin-top:clamp(22px,4vh,42px); display:flex; gap:14px; flex-wrap:wrap; }
+  .actions { margin-top:clamp(20px,3.6vh,40px); display:flex; gap:13px; flex-wrap:wrap; }
   .btn {
-    display:inline-block; padding:clamp(11px,1.6vh,15px) clamp(24px,2.6vw,38px);
+    display:inline-block; padding:clamp(10px,1.5vh,14px) clamp(22px,2.5vw,36px);
     border:1px solid #fff; color:#fff; text-decoration:none;
-    font-size:12px; font-weight:600; letter-spacing:.22em; text-transform:uppercase;
+    font-size:11.5px; font-weight:600; letter-spacing:.22em; text-transform:uppercase;
     transition:.25s;
   }
   .btn:hover { background:#fff; color:#000; }
   .btn.solid { background:#fff; color:#000; }
   .btn.solid:hover { background:transparent; color:#fff; }
   .scroll-cue {
-    position:absolute; left:50%; bottom:clamp(18px,3vh,34px); transform:translateX(-50%);
-    font-size:9.5px; font-weight:600; letter-spacing:.3em; color:#4d525c;
+    position:absolute; left:50%; bottom:clamp(16px,2.6vh,30px); transform:translateX(-50%);
+    font-size:9px; font-weight:600; letter-spacing:.3em; color:#4d525c;
     text-transform:uppercase; animation:bob 2.6s ease-in-out infinite;
   }
   @keyframes bob {
-    0%,100% { transform:translate(-50%,0); opacity:.5; }
+    0%,100% { transform:translate(-50%,0); opacity:.45; }
     50%     { transform:translate(-50%,6px); opacity:1; }
   }
 
-  /* ── SIMBAD 재검증 ── */
-  .recheck {
-    background:radial-gradient(ellipse 70% 50% at 80% 20%, rgba(90,120,200,.10), transparent 65%);
-  }
-  .verdict {
-    margin-top:clamp(20px,3.5vh,52px); display:flex; align-items:baseline;
-    gap:3vw; flex-wrap:wrap;
-  }
+  /* ── 재검증 ── */
+  .recheck { background:radial-gradient(ellipse 70% 50% at 80% 20%, rgba(90,120,200,.10), transparent 65%); }
+  .verdict { margin-top:clamp(16px,3vh,44px); display:flex; align-items:baseline; gap:3vw; flex-wrap:wrap; }
   .verdict .from, .verdict .to {
     font-family:'Inter',sans-serif; font-weight:800; letter-spacing:-.02em;
-    font-size:clamp(40px,5vw + 1vh,112px); line-height:1;
+    font-size:clamp(38px,4.6vw + 1vh,104px); line-height:1;
   }
   .verdict .from {
     color:#3d434e; text-decoration:line-through;
     text-decoration-thickness:5px; text-decoration-color:rgba(255,255,255,.25);
   }
-  .verdict .arr { font-size:clamp(22px,3vw,46px); color:var(--dim); }
+  .verdict .arr { font-size:clamp(20px,2.8vw,42px); color:var(--dim); }
   .verdict .cap {
-    width:100%; margin-top:clamp(8px,1.5vh,16px); color:var(--dim);
-    font-size:clamp(11px,.8vw,13px); letter-spacing:.06em; line-height:1.65;
+    width:100%; margin-top:clamp(8px,1.4vh,15px); color:var(--dim);
+    font-size:clamp(10.5px,.78vw,12.5px); letter-spacing:.05em; line-height:1.7;
   }
-  .recheck-grid {
-    margin-top:clamp(20px,3.5vh,56px); display:grid;
-    border-top:1px solid var(--line); grid-template-columns:repeat(2,1fr);
-  }
-  @media (min-width:820px){ .recheck-grid { grid-template-columns:repeat(4,1fr); } }
-  .rg { padding:clamp(14px,2.2vh,32px) 20px; border-right:1px solid var(--line); }
-  .rg:last-child { border-right:none; }
-  @media (max-width:819px){
-    .rg:nth-child(2n) { border-right:none; }
-    .rg:nth-child(-n+2) { border-bottom:1px solid var(--line); }
-  }
-  .rg .n { font-family:'Inter'; font-size:clamp(26px,2.2vw + .5vh,42px); font-weight:800; letter-spacing:-.03em; }
-  .rg .t { margin-top:6px; color:var(--dim); font-size:clamp(10.5px,.75vw,12.5px); letter-spacing:.08em; line-height:1.65; }
 
-  /* ── 성능 숫자 ── */
-  .metrics-grid {
-    margin-top:clamp(22px,4vh,58px); display:grid;
+  /* 숫자 격자 (공용) */
+  .grid4 {
+    margin-top:clamp(16px,3vh,50px); display:grid;
     grid-template-columns:repeat(2,1fr);
     border-top:1px solid var(--line); border-left:1px solid var(--line);
   }
-  @media (min-width:820px){ .metrics-grid { grid-template-columns:repeat(4,1fr); } }
-  .m {
-    padding:clamp(24px,5vh,64px) clamp(16px,2vw,28px);
+  @media (min-width:820px){ .grid4 { grid-template-columns:repeat(4,1fr); } }
+  .cell {
+    padding:clamp(14px,2.4vh,34px) clamp(14px,1.6vw,24px);
     border-right:1px solid var(--line); border-bottom:1px solid var(--line);
   }
-  .m .n { font-family:'Inter'; font-size:clamp(30px,3vw + .6vh,56px); font-weight:800; letter-spacing:-.03em; }
-  .m .t { margin-top:10px; color:var(--dim); font-size:clamp(10px,.75vw,12px); letter-spacing:.14em; text-transform:uppercase; }
+  .cell .n { font-family:'Inter'; font-weight:800; letter-spacing:-.03em;
+             font-size:clamp(25px,2.2vw + .5vh,44px); }
+  .cell .t { margin-top:7px; color:var(--dim); font-size:clamp(10px,.72vw,12px);
+             letter-spacing:.09em; line-height:1.6; }
 
-  /* ── MISSION ── */
-  .mission-list { margin-top:clamp(16px,3vh,44px); }
-  .mi {
-    display:grid; grid-template-columns:56px 1fr; gap:20px;
-    padding:clamp(10px,1.8vh,24px) 0; border-top:1px solid var(--line);
-    align-items:baseline;
-  }
-  @media (min-width:820px){ .mi { grid-template-columns:80px 300px 1fr; } }
-  .mi .no { font-family:'Inter'; font-weight:800; color:#3d434e; font-size:14px; letter-spacing:.2em; }
-  .mi h3 { font-size:clamp(14px,1vw + .2vh,17px); font-weight:700; letter-spacing:.02em; }
-  .mi p { color:var(--dim); font-size:clamp(11.5px,.85vw + .15vh,14px); line-height:1.7; margin-top:4px; }
-  @media (min-width:820px){ .mi p { margin-top:0; } }
+  /* ── 좌우 분할 ── */
+  .split { display:grid; gap:clamp(20px,3.4vh,48px); align-items:center; }
+  @media (min-width:960px){ .split { grid-template-columns:1fr 1fr; } }
+  @media (min-width:960px){ .split.narrow-left { grid-template-columns:5fr 7fr; } }
+  .stack-metrics { display:grid; grid-template-columns:repeat(2,1fr); gap:1px;
+                   background:var(--line); border:1px solid var(--line); }
+  .stack-metrics > div { background:#000; padding:clamp(12px,2.2vh,26px) clamp(12px,1.4vw,20px); }
+  .stack-metrics .n { font-family:'Inter'; font-weight:800; letter-spacing:-.03em;
+                      font-size:clamp(22px,2vw + .5vh,38px); }
+  .stack-metrics .t { margin-top:6px; color:var(--dim); font-size:clamp(9.5px,.68vw,11.5px);
+                      letter-spacing:.1em; text-transform:uppercase; line-height:1.55; }
 
-  /* ── RESULTS ── */
-  .split { display:grid; gap:clamp(22px,4vh,52px); align-items:center; }
-  @media (min-width:960px){ .split { grid-template-columns:5fr 6fr; } }
-  .frame { border:1px solid var(--line); padding:8px; background:#fff; }
-  .frame img { width:100%; display:block; max-height:min(54vh,470px); object-fit:contain; }
+  /* ── 데이터 깔때기 ── */
+  .funnel { margin-top:clamp(16px,3vh,46px); display:grid; gap:clamp(8px,1.2vw,16px);
+            grid-template-columns:1fr; }
+  @media (min-width:820px){ .funnel { grid-template-columns:repeat(4,1fr); } }
+  .fstep { position:relative; border:1px solid var(--line); border-top:2px solid var(--fc);
+           padding:clamp(14px,2.4vh,30px) clamp(14px,1.4vw,22px);
+           background:linear-gradient(180deg, color-mix(in srgb, var(--fc) 9%, transparent), transparent 70%); }
+  .fstep .k { font-size:10px; font-weight:600; letter-spacing:.2em; text-transform:uppercase; color:var(--dim); }
+  .fstep .n { margin-top:clamp(8px,1.4vh,16px); font-family:'Inter'; font-weight:800;
+              letter-spacing:-.03em; font-size:clamp(24px,2vw + .5vh,40px); color:var(--fc); }
+  .fstep .d { margin-top:clamp(8px,1.4vh,16px); color:var(--dim);
+              font-size:clamp(10.5px,.72vw,12.5px); line-height:1.65; }
 
-  /* ── CTA + FOOTER ── */
-  .cta-panel { padding-bottom:clamp(140px,20vh,200px); }
+  /* ── 9단계 ── */
+  .steps { margin-top:clamp(14px,2.6vh,40px); display:grid; gap:1px;
+           background:var(--line); border:1px solid var(--line);
+           grid-template-columns:repeat(2,1fr); }
+  @media (min-width:760px){ .steps { grid-template-columns:repeat(3,1fr); } }
+  .st { background:#000; padding:clamp(11px,1.9vh,22px) clamp(12px,1.3vw,20px); }
+  .st .no { font-family:'Inter'; font-weight:800; font-size:11px; letter-spacing:.18em; color:#3d434e; }
+  .st .h { margin-top:5px; font-size:clamp(12px,.9vw,14.5px); font-weight:700; }
+  .st .d { margin-top:4px; color:var(--dim); font-size:clamp(9.5px,.68vw,11.5px); line-height:1.55; }
+
+  /* ── 두 개의 눈 ── */
+  .eyes { margin-top:clamp(14px,2.6vh,42px); display:grid; gap:clamp(10px,1.4vw,20px);
+          grid-template-columns:1fr; }
+  @media (min-width:860px){ .eyes { grid-template-columns:1fr 1fr; } }
+  .eye { border:1px solid var(--line); border-top:2px solid var(--ec);
+         padding:clamp(14px,2.4vh,30px) clamp(14px,1.5vw,26px); }
+  .eye .k { font-size:10px; font-weight:600; letter-spacing:.2em; text-transform:uppercase; color:var(--ec); }
+  .eye h3 { margin-top:8px; font-size:clamp(14px,1.1vw,19px); font-weight:700; }
+  .eye p { margin-top:9px; color:var(--dim); font-size:clamp(11px,.78vw,13.5px); line-height:1.72; }
+  .eye .tag { margin-top:clamp(9px,1.5vh,15px); display:flex; flex-wrap:wrap; gap:6px; }
+  .eye .tag span { border:1px solid var(--line); color:#c6cad2; border-radius:2px;
+                   padding:4px 9px; font-size:10px; letter-spacing:.06em; }
+  .merge { margin-top:clamp(10px,1.8vh,20px); border:1px solid var(--line);
+           padding:clamp(11px,1.9vh,20px) clamp(14px,1.5vw,24px);
+           color:var(--dim); font-size:clamp(11px,.78vw,13px); line-height:1.7; }
+  .merge b { color:#fff; font-weight:700; }
+
+  /* ── 나아갈 방향 ── */
+  .ways { margin-top:clamp(12px,2.2vh,32px); }
+  .way { display:grid; grid-template-columns:30px 1fr; gap:16px; align-items:baseline;
+         padding:clamp(9px,1.6vh,20px) 0; border-top:1px solid var(--line); }
+  @media (min-width:860px){ .way { grid-template-columns:34px 250px 1fr; } }
+  .way .no { font-family:'Inter'; font-weight:800; color:#3d434e; font-size:13px; letter-spacing:.16em; }
+  .way h3 { font-size:clamp(12.5px,.95vw,16px); font-weight:700; }
+  .way p { color:var(--dim); font-size:clamp(11px,.78vw,13px); line-height:1.7; margin-top:4px; }
+  @media (min-width:860px){ .way p { margin-top:0; } }
+
+  /* ── FOOTER ── */
+  .cta-panel { padding-bottom:clamp(130px,19vh,190px); }
   footer {
     position:absolute; left:0; right:0; bottom:0;
     border-top:1px solid var(--line);
-    padding:clamp(20px,3vh,34px) 4vw clamp(22px,3.4vh,38px);
-    color:#5c6069; font-size:11.5px; line-height:1.95; letter-spacing:.04em;
+    padding:clamp(18px,2.6vh,30px) 4vw clamp(20px,3vh,34px);
+    color:var(--faint); font-size:11px; line-height:1.95; letter-spacing:.04em;
   }
   footer .inner { display:flex; justify-content:space-between; flex-wrap:wrap; gap:16px; }
   footer a { color:#9aa0ab; text-decoration:none; }
@@ -189,6 +240,7 @@
 <body>
 
 <canvas id="stars"></canvas>
+<div class="progress" id="prog"></div>
 <div class="z">
 
 <nav>
@@ -198,22 +250,24 @@
   <div class="coords">36.7819° N &nbsp;127.2326° E — MOKCHEON, JIGOOBORN</div>
   <div class="nav-links">
     <a href="#recheck">Recheck</a>
-    <a href="#metrics">Numbers</a>
-    <a href="#mission">Mission</a>
+    <a href="#accuracy">Accuracy</a>
+    <a href="#method">Method</a>
+    <a href="#physics">Physics</a>
     <a href="https://github.com/jigooborn/nobellsang-batnenyonego">GitHub</a>
   </div>
 </nav>
 
+<!-- 1 ─────────────────────────────────────────── -->
 <header class="panel hero" id="top">
   <div class="inner">
-    <div class="micro">항성 분광형 자동 분류 프로그램 · Stellar Spectral Classification — 제72회 전국과학전람회</div>
-    <h1>피커링의 두 눈,<br><span class="ai">AI</span>로 재현하다</h1>
-    <p class="sub">
+    <div class="micro" data-reveal>항성 분광형 자동 분류 프로그램 · Stellar Spectral Classification — 제72회 전국과학전람회</div>
+    <h1 data-reveal>피커링의 두 눈,<br><span class="ai">AI</span>로 재현하다</h1>
+    <p class="sub" data-reveal>
       27만 개의 실제 관측 스펙트럼으로 학습한 앙상블 AI가
       별빛 하나에서 분광형과 광도계급, 온도, 표면중력을 읽어냅니다.
       그리고 한 세기 동안 축적된 천문 데이터베이스를 오늘의 눈으로 다시 봅니다.
     </p>
-    <div class="actions">
+    <div class="actions" data-reveal>
       <a class="btn solid" href="#recheck">재검증 결과</a>
       <a class="btn" href="https://github.com/jigooborn/nobellsang-batnenyonego">프로그램 받기</a>
     </div>
@@ -221,102 +275,270 @@
   <div class="scroll-cue">Scroll</div>
 </header>
 
+<!-- 2 ─────────────────────────────────────────── -->
+<section class="panel" id="spectra">
+  <div class="inner">
+    <div class="micro" data-reveal>The Subject — 스펙트럼</div>
+    <h2 data-reveal>별빛을 펼치면, 온도가 보인다</h2>
+    <p class="lead" data-reveal>
+      별빛을 파장별로 펼치면 군데군데 빛이 깎여 나간 <b>흡수선</b>이 나타납니다.
+      어떤 원소가 어느 파장의 빛을 삼켰는지가 표면온도에 따라 달라지기 때문에,
+      선의 모양만 보고도 별의 온도를 읽을 수 있습니다. 이것이 분광형(OB·A·F·G·K·M)입니다.
+    </p>
+    <div class="fig wide" data-reveal style="margin-top:clamp(10px,2vh,28px)">
+      <img src="figures/w_spectra.png" alt="OB형·G형·M형 대표 스펙트럼 비교">
+    </div>
+    <p class="note" data-reveal style="margin-top:10px">
+      학습에 사용하지 않은 test 셋의 실제 관측 스펙트럼. 전처리를 거쳐 연속선을 1로 정규화한 상태.
+    </p>
+  </div>
+</section>
+
+<!-- 3 ─────────────────────────────────────────── -->
 <section class="panel recheck" id="recheck">
   <div class="inner">
-    <div class="micro">Featured — SIMBAD Recheck</div>
-    <h2>100년의 기록을, 오늘의 눈으로</h2>
-    <p class="lead">
+    <div class="micro" data-reveal>Featured — SIMBAD Recheck</div>
+    <h2 data-reveal>100년의 기록을, 오늘의 눈으로</h2>
+    <p class="lead" data-reveal>
       천문학의 표준 참고자료 SIMBAD의 분광형은 1890년대 사진건판 분류까지
       거슬러 올라가는 소중한 축적 자료입니다. 본 연구의 AI는 이 라벨과
       독립적으로 별을 재판정하고, 판정이 어긋난 별을 제3의 물리량(문헌 실측
       온도)으로 심판해 갱신 검토가 필요한 별의 목록을 만들었습니다.
     </p>
 
-    <div class="verdict">
+    <div class="verdict" data-reveal>
       <span class="from">B5</span>
       <span class="arr">→</span>
       <span class="to">F형</span>
       <div class="cap">
         HD 338529 — SIMBAD 등록 분광형(B5)과 달리 AI는 F형으로 판정(신뢰도 96%).
-        독립 문헌 실측 온도 6,165K 역시 F형 구간 — 등록 라벨의 갱신 검토를 시사.
+        독립 문헌 실측 온도 6,165 K 역시 F형 구간 — 등록 라벨의 갱신 검토를 시사.
       </div>
     </div>
 
-    <div class="recheck-grid">
-      <div class="rg"><div class="n" data-count="469">469</div><div class="t">SIMBAD 등록 분광형과<br>대조한 별</div></div>
-      <div class="rg"><div class="n" data-count="111">111</div><div class="t">판정 불일치 —<br>문헌 온도로 심판</div></div>
-      <div class="rg"><div class="n" data-count="90">90</div><div class="t">독립 온도가<br>AI 판정을 지지</div></div>
-      <div class="rg"><div class="n" data-count="75">75</div><div class="t">갱신 검토 후보로<br>최종 선별된 라벨</div></div>
+    <div class="grid4" data-reveal>
+      <div class="cell"><div class="n" data-count="469">469</div><div class="t">SIMBAD 등록 분광형과<br>대조한 별</div></div>
+      <div class="cell"><div class="n" data-count="111">111</div><div class="t">판정 불일치 —<br>문헌 온도로 심판</div></div>
+      <div class="cell"><div class="n" data-count="90">90</div><div class="t">독립 온도가<br>AI 판정을 지지</div></div>
+      <div class="cell"><div class="n" data-count="75">75</div><div class="t">갱신 검토 후보로<br>최종 선별된 라벨</div></div>
     </div>
-  </div>
-</section>
-
-<section class="panel" id="metrics">
-  <div class="inner">
-    <div class="micro">Performance</div>
-    <h2>숫자로 검증하다</h2>
-    <p class="lead">
-      아래 수치는 모두 학습에 한 번도 쓰지 않은 별로 측정했습니다.
-      같은 데이터를 다섯 번 다르게 나눠 재현성을 확인했고,
-      마지막에는 학습에 없던 다른 망원경의 관측으로 시험했습니다.
+    <p class="note" data-reveal style="margin-top:12px">
+      '오류 확정'이 아니라 '재검토 후보'입니다. 최종 판단은 원 관측 자료를 가진 전문 연구자의 몫입니다.
     </p>
-    <div class="metrics-grid">
-      <div class="m"><div class="n" data-count="97.6" data-dec="1" data-suf="%">97.6%</div><div class="t">Test Accuracy · 16,189</div></div>
-      <div class="m"><div class="n" data-count="0.06" data-dec="2" data-pre="±">±0.06</div><div class="t">5-Fold Deviation</div></div>
-      <div class="m"><div class="n" data-count="94.0" data-dec="1" data-suf="%">94.0%</div><div class="t">External · VLT/X-shooter</div></div>
-      <div class="m"><div class="n" data-count="1.14" data-dec="2" data-suf="%">1.14%</div><div class="t">Teff Median Error</div></div>
-    </div>
   </div>
 </section>
 
-<section class="panel" id="mission">
+<!-- 4 ─────────────────────────────────────────── -->
+<section class="panel" id="accuracy">
   <div class="inner">
-    <div class="micro">Mission</div>
-    <h2>스펙트럼만으로 판정한다</h2>
-    <p class="lead">
-      외부 정보는 일절 사용하지 않습니다. 시선속도와 성간소광량까지
-      스펙트럼 스스로에게서 알아내고, 판정의 근거가 된 흡수선을
-      화면에 표시해 결정을 눈으로 검증할 수 있게 했습니다.
+    <div class="micro" data-reveal>Accuracy</div>
+    <h2 data-reveal>얼마나 맞히는가</h2>
+    <div class="split narrow-left" style="margin-top:clamp(10px,2vh,26px)">
+      <div>
+        <p class="lead" data-reveal>
+          아래 수치는 모두 <b>학습에 한 번도 쓰지 않은 별</b>로 측정했습니다.
+          같은 별이 여러 서베이에 중복 등장하는 경우까지 묶어서 분리했기 때문에,
+          정답을 미리 본 별이 시험에 섞이는 일이 없습니다.
+        </p>
+        <div class="stack-metrics" data-reveal style="margin-top:clamp(12px,2.2vh,26px)">
+          <div><div class="n" data-count="97.6" data-dec="1" data-suf="%">97.6%</div><div class="t">Test Accuracy · 16,189</div></div>
+          <div><div class="n" data-count="99.7" data-dec="1" data-suf="%">99.7%</div><div class="t">±1등급 이내</div></div>
+          <div><div class="n" data-count="94.0" data-dec="1" data-suf="%">94.0%</div><div class="t">External · VLT/X-shooter</div></div>
+          <div><div class="n" data-count="1.14" data-dec="2" data-suf="%">1.14%</div><div class="t">Teff 중앙 오차</div></div>
+        </div>
+      </div>
+      <div class="fig tall" data-reveal>
+        <img src="figures/w_cm.png" alt="test 혼동행렬 — 정확도 97.6%">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 ─────────────────────────────────────────── -->
+<section class="panel">
+  <div class="inner">
+    <div class="micro" data-reveal>Reproducibility</div>
+    <h2 data-reveal>운이 좋았던 게 아니라는 확인</h2>
+    <p class="lead" data-reveal>
+      한 번의 시험은 우연일 수 있습니다. 데이터를 다섯 번 다르게 갈라
+      매번 새로 학습시켜도 결과가 흔들리지 않는지 확인했고,
+      마지막에는 학습에 쓴 적 없는 <b>다른 망원경</b>(VLT/X-shooter)의 관측으로 시험했습니다.
     </p>
-    <div class="mission-list">
-      <div class="mi"><div class="no">01</div><h3>데이터</h3>
-        <p>LAMOST · SDSS(MaStar/SEGUE) · MILES 4개 국제 서베이의 273,301개 스펙트럼. Gaia DR3 크로스매칭으로 같은 별을 그룹화한 정답지 222,381행.</p></div>
-      <div class="mi"><div class="no">02</div><h3>전처리 9단계</h3>
-        <p>진공→공기 파장 변환, 도플러 보정, 성간소광 보정, 연속선 정규화 — 물리 변수를 통제해 별의 본모습만 남깁니다.</p></div>
-      <div class="mi"><div class="no">03</div><h3>두 개의 눈</h3>
-        <p>스펙트럼 전체를 학습하는 CNN(ResNet)과 물리 지표 39개(빈의 변위 법칙 · 사하-볼츠만 · 압력 넓어짐)를 입력받는 MLP의 앙상블. 두 판정이 어긋나면 특이 천체 경고.</p></div>
-      <div class="mi"><div class="no">04</div><h3>검증 4단계</h3>
-        <p>홀드아웃 → 별 그룹 단위 5-fold 교차검증 → 24만 개 전수검사 → 학습에 쓰지 않은 별도 망원경(VLT) 데이터.</p></div>
+    <div class="fig wide" data-reveal style="margin-top:clamp(10px,2vh,26px)">
+      <img src="figures/w_kfold.png" alt="5-fold 교차검증 결과">
+    </div>
+    <p class="note" data-reveal style="margin-top:10px">
+      앙상블 97.73 ± 0.06% (5-fold). 두 모델을 합치면 단독 MLP보다 약 1%p 높고, 판정이 더 안정적입니다.
+    </p>
+  </div>
+</section>
+
+<!-- 6 ─────────────────────────────────────────── -->
+<section class="panel" id="method">
+  <div class="inner">
+    <div class="micro" data-reveal>Method 01 — Data</div>
+    <h2 data-reveal>27만 개에서 신뢰할 수 있는 학습셋까지</h2>
+    <p class="lead" data-reveal>
+      많이 모으는 것보다 중요한 건 <b>정답이 새지 않게 만드는 일</b>입니다.
+      같은 별이 여러 서베이에 들어 있으면 학습과 시험에 나뉘어 들어가 성적이 부풀려지므로,
+      Gaia DR3로 위치를 대조해 같은 별을 한 덩어리로 묶은 뒤 통째로 갈랐습니다.
+    </p>
+    <div class="funnel">
+      <div class="fstep" data-reveal style="--fc:#5b8ede">
+        <div class="k">01 · 수집</div>
+        <div class="n" data-count="273301" data-sep="1">273,301</div>
+        <div class="d">LAMOST · MaStar · SEGUE · MILES<br>4개 국제 서베이 (M형 보강 15,000 포함)</div>
+      </div>
+      <div class="fstep" data-reveal style="--fc:#3fbfa3">
+        <div class="k">02 · 정답지</div>
+        <div class="n" data-count="222381" data-sep="1">222,381</div>
+        <div class="d">Gaia DR3 크로스매칭으로<br>같은 별을 그룹화 — 누수 차단</div>
+      </div>
+      <div class="fstep" data-reveal style="--fc:#f5b731">
+        <div class="k">03 · 선별</div>
+        <div class="n" data-count="108346" data-sep="1">108,346</div>
+        <div class="d">온도 경계 ±75 K 버퍼 제외<br>서베이 층화 선별로 쏠림 방지</div>
+      </div>
+      <div class="fstep" data-reveal style="--fc:#e8834a">
+        <div class="k">04 · 분리</div>
+        <div class="n" data-count="16189" data-sep="1">16,189</div>
+        <div class="d">시험 전용으로 완전히 떼어낸 별<br>학습 109,670 · 증강은 학습에만</div>
+      </div>
     </div>
   </div>
 </section>
 
-<section class="panel" id="results">
-  <div class="inner split">
-    <div>
-      <div class="micro">Results</div>
-      <h2>AI가 물리를<br>배웠다는 증거</h2>
-      <p class="lead">
-        모델이 예측한 온도와 표면중력만으로 별들을 배치하자,
-        천문학의 상징인 H-R도의 구조 — 주계열과 적색거성가지 — 가
-        그대로 나타났습니다. 데이터를 암기한 것이 아니라
-        별의 물리를 스펙트럼에서 읽어냈다는 뜻입니다.
-      </p>
+<!-- 7 ─────────────────────────────────────────── -->
+<section class="panel">
+  <div class="inner">
+    <div class="micro" data-reveal>Method 02 — Preprocessing</div>
+    <h2 data-reveal>별의 본모습만 남기는 9단계</h2>
+    <p class="lead" data-reveal>
+      관측된 빛에는 별 자신의 성질 말고도 여러 방해 요소가 섞여 있습니다.
+      별이 다가오거나 멀어지며 생긴 파장 이동, 사이의 먼지가 붉게 물들인 정도, 관측 장비의 잡음까지.
+      이것들을 순서대로 걷어내야 서로 다른 망원경의 별을 같은 잣대로 비교할 수 있습니다.
+    </p>
+    <div class="steps">
+      <div class="st" data-reveal><div class="no">01</div><div class="h">진공 → 공기 파장</div><div class="d">서베이마다 다른 파장 기준을 통일 (Morton 1991)</div></div>
+      <div class="st" data-reveal><div class="no">02</div><div class="h">불량 화소 보간</div><div class="d">검출기 결함으로 비어 있는 지점을 메움</div></div>
+      <div class="st" data-reveal><div class="no">03</div><div class="h">시선속도 보정</div><div class="d">강한 흡수선 7개로 도플러 이동을 직접 측정해 되돌림</div></div>
+      <div class="st" data-reveal><div class="no">04</div><div class="h">성간소광 보정</div><div class="d">먼지가 붉게 물들인 정도를 Cardelli 곡선으로 복원</div></div>
+      <div class="st" data-reveal><div class="no">05</div><div class="h">파장 구간 절단</div><div class="d">모든 서베이가 공통으로 갖는 4000–7400 Å만 사용</div></div>
+      <div class="st" data-reveal><div class="no">06</div><div class="h">이상값 제거</div><div class="d">우주선(cosmic ray)이 만든 뾰족한 신호를 걸러냄</div></div>
+      <div class="st" data-reveal><div class="no">07</div><div class="h">평활화</div><div class="d">흡수선 모양은 지키면서 잡음만 줄임 (Savitzky–Golay)</div></div>
+      <div class="st" data-reveal><div class="no">08</div><div class="h">연속선 정규화</div><div class="d">밝기·거리의 영향을 지워 선의 깊이만 남김</div></div>
+      <div class="st" data-reveal><div class="no">09</div><div class="h">공통 격자 정렬</div><div class="d">3,401개 화소로 맞춰 어떤 관측이든 같은 형식으로</div></div>
     </div>
-    <div class="frame"><img src="figures/2_hr_diagram.png" alt="AI 예측만으로 그린 H-R도"></div>
   </div>
 </section>
 
+<!-- 8 ─────────────────────────────────────────── -->
+<section class="panel">
+  <div class="inner">
+    <div class="micro" data-reveal>Method 03 — Ensemble</div>
+    <h2 data-reveal>두 개의 눈으로 본다</h2>
+    <p class="lead" data-reveal>
+      피커링과 캐넌은 스펙트럼 전체의 인상과 개별 흡수선의 세기, 두 가지를 함께 보고 별을 분류했습니다.
+      이 연구는 그 두 시선을 각각 다른 모델에 맡기고, 마지막에 합쳐 판정합니다.
+    </p>
+    <div class="eyes">
+      <div class="eye" data-reveal style="--ec:#5b8ede">
+        <div class="k">Eye 01</div>
+        <h3>CNN (ResNet 구조)</h3>
+        <p>정규화된 스펙트럼 3,401개 화소를 통째로 입력받아, 사람이 미리 정해주지 않은 특징까지 스스로 찾아냅니다. 흡수선의 모양과 깊이, 넓은 구간에 걸친 흐름을 함께 봅니다.</p>
+        <div class="tag"><span>3,401 화소 전체</span><span>SE 어텐션</span><span>어텐션 풀링</span></div>
+      </div>
+      <div class="eye" data-reveal style="--ec:#f5a04a">
+        <div class="k">Eye 02</div>
+        <h3>MLP (물리 지표 39개)</h3>
+        <p>물리 법칙에서 유도한 값만 골라 입력합니다. 무엇을 보고 판단했는지가 처음부터 사람의 언어로 정의되어 있어, 판정 근거를 되짚을 수 있습니다.</p>
+        <div class="tag"><span>등가폭 27 · 사하-볼츠만</span><span>선폭 10 · 압력 넓어짐</span><span>색지수 2 · 빈의 변위</span></div>
+      </div>
+    </div>
+    <div class="merge" data-reveal>
+      <b>두 판정을 평균해 최종 결정.</b> 서로 다른 근거를 보기 때문에 한쪽이 헷갈리는 별을 다른 쪽이 잡아냅니다.
+      두 모델의 판정이 엇갈리거나 확신도가 낮으면 <b>특이 천체 가능성</b>으로 표시해, 틀린 답을 조용히 내놓는 대신 사람에게 넘깁니다.
+    </div>
+  </div>
+</section>
+
+<!-- 9 ─────────────────────────────────────────── -->
+<section class="panel" id="physics">
+  <div class="inner">
+    <div class="micro" data-reveal>Evidence 01</div>
+    <h2 data-reveal>원소선은 각자의 온도에서만 최대가 된다</h2>
+    <p class="lead" data-reveal>
+      AI가 실제로 읽어낸 흡수선의 세기를 온도순으로 늘어놓자,
+      교과서의 사하-볼츠만 이론이 예측한 봉우리가 그대로 나타났습니다.
+      수소는 1만 K 부근에서, 마그네슘·칼슘은 그보다 훨씬 낮은 온도에서,
+      TiO 분자는 분자가 살아남을 수 있는 3천 K대에서만 강해집니다.
+    </p>
+    <div class="fig wide" data-reveal style="margin-top:clamp(10px,2vh,26px)">
+      <img src="figures/w_saha.png" alt="흡수선 세기와 온도의 관계 — 사하-볼츠만 법칙 재현">
+    </div>
+  </div>
+</section>
+
+<!-- 10 ─────────────────────────────────────────── -->
+<section class="panel">
+  <div class="inner">
+    <div class="micro" data-reveal>Evidence 02</div>
+    <h2 data-reveal>AI의 답만으로 H-R도가 다시 그려졌다</h2>
+    <div class="split" style="margin-top:clamp(10px,2vh,24px)">
+      <div>
+        <p class="lead" data-reveal>
+          H-R도는 별의 온도와 광도를 두 축에 놓았을 때 별들이 아무 데나 흩어지지 않고
+          띠와 가지를 이룬다는, 20세기 천문학의 가장 중요한 발견 중 하나입니다.
+        </p>
+        <p class="lead" data-reveal style="margin-top:14px">
+          이 그림에는 문헌값이 한 개도 들어가지 않았습니다. 오직 AI가 스펙트럼만 보고 답한
+          온도와 표면중력으로 점을 찍었을 뿐인데, <b>주계열과 적색거성가지</b>가 저절로 나타났습니다.
+          데이터를 외운 것이 아니라 별의 물리를 읽어냈다는 뜻입니다.
+        </p>
+      </div>
+      <div class="fig tall" data-reveal>
+        <img src="figures/w_hr.png" alt="AI 예측만으로 그린 H-R도">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 11 ─────────────────────────────────────────── -->
+<section class="panel">
+  <div class="inner">
+    <div class="micro" data-reveal>What's Next — 나아갈 방향</div>
+    <h2 data-reveal>아직 남은 세 가지 과제</h2>
+    <p class="lead" data-reveal>
+      잘 맞힌 곳보다 틀린 곳이 다음 연구의 방향을 알려줍니다.
+      어디서 왜 어려웠는지를 물리적으로 짚어 두었습니다.
+    </p>
+    <div class="split narrow-left" style="margin-top:clamp(8px,1.6vh,22px)">
+      <div class="ways">
+        <div class="way" data-reveal><div class="no">01</div><h3>백색왜성</h3>
+          <p>재현율 30.2% (N=43). 연속선 정규화가 백색왜성 특유의 <b>매우 넓은 수소선 날개</b>를 연속선으로 착각해 깎아냅니다. 전처리 자체를 우회하는 별도 경로가 필요합니다.</p></div>
+        <div class="way" data-reveal><div class="no">02</div><h3>금속이 적은 별</h3>
+          <p>금속 결핍 별의 오분류율은 7.6%로 금속이 풍부한 별(1.4%)의 <b>5배 이상</b>입니다. 금속이 적으면 흡수선이 얕아져 더 뜨거운 별처럼 보이는 <b>온도–금속함량 축퇴</b> 때문입니다.</p></div>
+        <div class="way" data-reveal><div class="no">03</div><h3>O형 표본</h3>
+          <p>O형 별은 수 자체가 매우 드물어 단독 학습이 어려웠고, B형과 묶어 OB로 다루었습니다. 고온성 관측을 더 확보하면 O형을 분리해 낼 수 있습니다.</p></div>
+      </div>
+      <div class="fig wide" data-reveal>
+        <img src="figures/w_feh.png" alt="금속함량 구간별 오분류율">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 12 ─────────────────────────────────────────── -->
 <section class="panel cta-panel">
   <div class="inner">
-    <div class="micro">Open Source</div>
-    <h2>직접 실행해 보세요</h2>
-    <p class="lead">
+    <div class="micro" data-reveal>Open Source</div>
+    <h2 data-reveal>직접 실행해 보세요</h2>
+    <p class="lead" data-reveal>
       코드 · 학습된 모델 · 테스트용 스펙트럼 4개가 공개되어 있습니다.
-      설치 후 한 줄이면 첫 별을 분류할 수 있습니다 — SIMBAD에 'B5'로
-      등록된 HD 338529의 재검증도 직접 재현해 볼 수 있습니다.
+      압축을 풀고 파일 하나만 실행하면 첫 별을 분류할 수 있습니다 —
+      SIMBAD에 'B5'로 등록된 HD 338529의 재검증도 직접 재현해 볼 수 있습니다.
     </p>
-    <div class="actions">
+    <div class="actions" data-reveal>
       <a class="btn solid" href="https://github.com/jigooborn/nobellsang-batnenyonego">GitHub Repository</a>
     </div>
   </div>
@@ -328,7 +550,7 @@
       </div>
       <div>
         코드·모델 MIT License<br>
-        데이터 — <a href="https://www.lamost.org/dr9/">LAMOST</a> · <a href="https://www.sdss4.org/dr17/">SDSS</a> · <a href="http://miles.iac.es/">MILES</a> · <a href="https://simbad.cds.unistra.fr/">SIMBAD</a>
+        데이터 — <a href="https://www.lamost.org/dr9/">LAMOST</a> · <a href="https://www.sdss4.org/dr17/">SDSS</a> · <a href="http://miles.iac.es/">MILES</a> · <a href="https://simbad.cds.unistra.fr/">SIMBAD</a> · <a href="https://gea.esac.esa.int/archive/">Gaia</a>
       </div>
     </div>
   </footer>
@@ -337,6 +559,7 @@
 </div>
 
 <script>
+/* ── 배경 별 ── */
 const cv = document.getElementById('stars'), cx = cv.getContext('2d');
 let stars = [];
 function reset() {
@@ -361,14 +584,17 @@ function draw(t) {
 addEventListener('resize', reset);
 reset(); requestAnimationFrame(draw);
 
-// 새로고침하면 항상 맨 위(히어로)부터 시작
+/* ── 새로고침하면 항상 맨 위부터 ── */
 history.scrollRestoration = 'manual';
 scrollTo(0, 0);
 
-// 숫자 카운트업 — 화면에 들어올 때마다 굴러가며 차오름 (나갔다 오면 다시 재생)
+/* ── 숫자 카운트업 (화면에 들어올 때마다 재생) ── */
 const ease = t => 1 - Math.pow(1 - t, 3);
+function fmt(v, dec) {
+  return v.toLocaleString('en-US', {minimumFractionDigits: dec, maximumFractionDigits: dec});
+}
 function countUp(el) {
-  const gen = el._gen = (el._gen || 0) + 1;   // 이전 애니메이션 무효화 토큰
+  const gen = el._gen = (el._gen || 0) + 1;
   const target = parseFloat(el.dataset.count);
   const dec = parseInt(el.dataset.dec || '0');
   const pre = el.dataset.pre || '', suf = el.dataset.suf || '';
@@ -377,14 +603,10 @@ function countUp(el) {
     if (el._gen !== gen) return;
     const p = Math.min((now - t0) / dur, 1);
     let v = target * ease(p);
-    // 마지막 10% 전까지는 끝자리가 흔들리는 느낌
-    if (p < 0.9) v += (Math.random() - 0.5) * target * 0.02 * (1 - p);
-    v = Math.max(0, v);
-    el.textContent = pre + v.toLocaleString('en-US',
-      {minimumFractionDigits: dec, maximumFractionDigits: dec}) + suf;
+    if (p < 0.9) v += (Math.random() - 0.5) * target * 0.02 * (1 - p);   // 끝자리 흔들림
+    el.textContent = pre + fmt(Math.max(0, v), dec) + suf;
     if (p < 1) requestAnimationFrame(tick);
-    else el.textContent = pre + target.toLocaleString('en-US',
-      {minimumFractionDigits: dec, maximumFractionDigits: dec}) + suf;
+    else el.textContent = pre + fmt(target, dec) + suf;
   }
   requestAnimationFrame(tick);
 }
@@ -392,19 +614,33 @@ function resetCount(el) {
   el._gen = (el._gen || 0) + 1;
   el.textContent = (el.dataset.pre || '') + '0' + (el.dataset.suf || '');
 }
-const io = new IntersectionObserver(entries => {
-  for (const e of entries) {
-    if (e.isIntersecting) countUp(e.target);
-    else resetCount(e.target);
-  }
+const ioNum = new IntersectionObserver(es => {
+  for (const e of es) e.isIntersecting ? countUp(e.target) : resetCount(e.target);
 }, {threshold: 0.55});
-document.querySelectorAll('[data-count]').forEach(el => {
-  resetCount(el);
-  io.observe(el);
-});
+document.querySelectorAll('[data-count]').forEach(el => { resetCount(el); ioNum.observe(el); });
 
-// 섹션 스냅 — 한 섹션이 정확히 한 화면.
-// 1/3 이상 넘기면 다음 화면이 딱 맞게 들어오고, 1/3 미만이면 보던 화면으로 복귀
+/* ── 스크롤 등장 (섹션 단위로 순차 등장) ── */
+document.querySelectorAll('.panel').forEach(panel => {
+  const items = [...panel.querySelectorAll('[data-reveal]')];
+  items.forEach((el, i) => { el.style.transitionDelay = Math.min(i * 70, 560) + 'ms'; });
+});
+const ioRev = new IntersectionObserver(es => {
+  for (const e of es) {
+    const items = [...e.target.querySelectorAll('[data-reveal]')];
+    items.forEach(el => el.classList.toggle('in', e.isIntersecting));
+  }
+}, {threshold: 0.3});
+document.querySelectorAll('.panel').forEach(p => ioRev.observe(p));
+
+/* ── 진행 표시줄 ── */
+const prog = document.getElementById('prog');
+function updateProgress() {
+  const max = document.documentElement.scrollHeight - innerHeight;
+  prog.style.width = (max > 0 ? (scrollY / max) * 100 : 0) + '%';
+}
+
+/* ── 섹션 스냅 — 한 섹션이 정확히 한 화면 ──
+   1/3 이상 넘기면 다음 화면이 딱 맞게 들어오고, 1/3 미만이면 보던 화면으로 복귀 */
 const snapPts = () => [...document.querySelectorAll('.panel')]
   .map(p => Math.round(p.getBoundingClientRect().top + scrollY));
 let idleTimer = null, snapping = false, lastY = scrollY, dirDown = true, hold = 0;
@@ -413,9 +649,9 @@ function glideTo(target) {
   target = Math.max(0, Math.min(target,
     document.documentElement.scrollHeight - innerHeight));
   if (Math.abs(target - scrollY) < 8) return;
-  if (document.hidden) {  // 백그라운드 탭에선 rAF가 멈추므로 즉시 이동
+  if (document.hidden) {              // 백그라운드 탭에선 rAF가 멈춤
     scrollTo({top: target, behavior: 'instant'});
-    lastY = scrollY;
+    lastY = scrollY; updateProgress();
     return;
   }
   snapping = true;
@@ -427,6 +663,7 @@ function glideTo(target) {
     if (stop) { snapping = false; lastY = scrollY; return; }
     const p = Math.min((now - t0) / dur, 1);
     scrollTo({top: start + dist * (1 - Math.pow(1 - p, 3)), behavior: 'instant'});
+    updateProgress();
     if (p < 1) requestAnimationFrame(step);
     else {
       removeEventListener('wheel', cancel);
@@ -440,27 +677,28 @@ function snapCheck() {
   if (snapping || innerWidth < 820 || performance.now() < hold) return;
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   const y = scrollY, h = innerHeight, pts = snapPts();
-  // 지금 걸쳐 있는 섹션의 위 경계 / 다음 섹션의 위 경계
   let i = -1;
   for (let k = 0; k < pts.length; k++) if (pts[k] <= y + 2) i = k;
   if (i < 0 || i >= pts.length - 1) return;
   const here = pts[i], next = pts[i + 1];
   if (next - here > h + 4) return;      // 내용이 화면보다 긴 섹션은 자유 스크롤
-  const offset = y - here;              // 이 섹션을 얼마나 지나왔나
+  const offset = y - here;
   if (offset < 2) return;
   if (dirDown) glideTo(offset >= h / 3 ? next : here);
   else glideTo(offset <= h * 2 / 3 ? here : next);
 }
 
 addEventListener('scroll', () => {
+  updateProgress();
   if (snapping) return;
   if (Math.abs(scrollY - lastY) > 1) dirDown = scrollY > lastY;
   lastY = scrollY;
   clearTimeout(idleTimer);
   idleTimer = setTimeout(snapCheck, 150);
 }, {passive: true});
+updateProgress();
 
-// 내비게이션 클릭 직후엔 스냅이 개입하지 않도록 잠시 대기
+/* 내비게이션 클릭 직후엔 스냅이 개입하지 않도록 잠시 대기 */
 document.querySelectorAll('a[href^="#"]').forEach(a =>
   a.addEventListener('click', () => { hold = performance.now() + 1200; }));
 </script>
