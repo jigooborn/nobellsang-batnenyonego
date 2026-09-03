@@ -187,15 +187,34 @@
   .fstep .d { margin-top:clamp(8px,1.4vh,16px); color:var(--dim);
               font-size:clamp(10.5px,.72vw,12.5px); line-height:1.65; }
 
-  /* ── 9단계 ── */
-  .steps { margin-top:clamp(14px,2.6vh,40px); display:grid; gap:1px;
-           background:var(--line); border:1px solid var(--line);
-           grid-template-columns:repeat(2,1fr); }
-  @media (min-width:760px){ .steps { grid-template-columns:repeat(3,1fr); } }
-  .st { background:#000; padding:clamp(11px,1.9vh,22px) clamp(12px,1.3vw,20px); }
-  .st .no { font-family:'Inter'; font-weight:800; font-size:11px; letter-spacing:.18em; color:#3d434e; }
-  .st .h { margin-top:5px; font-size:clamp(12px,.9vw,14.5px); font-weight:700; }
-  .st .d { margin-top:4px; color:var(--dim); font-size:clamp(9.5px,.68vw,11.5px); line-height:1.55; }
+  /* ── 전처리 단계 뷰어 ── */
+  .viewer { margin-top:clamp(8px,1.6vh,20px); }
+  .vstage { position:relative; }
+  .vstage img { width:100%; display:block; max-height:min(38vh,340px);
+                object-fit:contain; margin:0 auto; }
+  .vbar { margin-top:clamp(6px,1.2vh,14px); display:flex; align-items:center;
+          gap:clamp(10px,1.6vw,22px); }
+  .vbtn {
+    flex:none; width:clamp(34px,3.4vh,42px); height:clamp(34px,3.4vh,42px);
+    border:1px solid var(--line); background:transparent; color:#fff;
+    cursor:pointer; display:grid; place-items:center; transition:.2s;
+    font-size:15px; line-height:1; font-family:'Inter';
+  }
+  .vbtn:hover:not(:disabled) { background:#fff; color:#000; border-color:#fff; }
+  .vbtn:disabled { opacity:.25; cursor:default; }
+  .dots { flex:1; display:flex; gap:5px; align-items:center; }
+  .dot { flex:1; height:2px; background:#2b3038; cursor:pointer; transition:background .25s; }
+  .dot.on { background:#6ea8ff; }
+  .dot.done { background:#5a6270; }
+  .vnum { flex:none; font-family:'Inter'; font-size:11px; font-weight:600;
+          letter-spacing:.16em; color:var(--dim); }
+  .vcap { margin-top:clamp(8px,1.5vh,18px); border-top:1px solid var(--line);
+          padding-top:clamp(8px,1.5vh,16px);
+          display:grid; gap:4px 24px; grid-template-columns:1fr; }
+  @media (min-width:860px){ .vcap { grid-template-columns:270px 1fr; } }
+  .vcap h3 { font-size:clamp(13px,1vw,17px); font-weight:700; }
+  .vcap p { color:var(--dim); font-size:clamp(11px,.76vw,13px); line-height:1.72; }
+  .vhint { margin-top:8px; color:#4d525c; font-size:10px; letter-spacing:.12em; }
 
   /* ── 두 개의 눈 ── */
   .eyes { margin-top:clamp(14px,2.6vh,42px); display:grid; gap:clamp(10px,1.4vw,20px);
@@ -415,19 +434,24 @@
     <h2 data-reveal>별의 본모습만 남기는 9단계</h2>
     <p class="lead" data-reveal>
       관측된 빛에는 별 자신의 성질 말고도 여러 방해 요소가 섞여 있습니다.
-      별이 다가오거나 멀어지며 생긴 파장 이동, 사이의 먼지가 붉게 물들인 정도, 관측 장비의 잡음까지.
-      이것들을 순서대로 걷어내야 서로 다른 망원경의 별을 같은 잣대로 비교할 수 있습니다.
+      실제 관측 파일 하나를 열어, 단계마다 무엇이 달라지는지 직접 넘겨 보세요.
     </p>
-    <div class="steps">
-      <div class="st" data-reveal><div class="no">01</div><div class="h">진공 → 공기 파장</div><div class="d">서베이마다 다른 파장 기준을 통일 (Morton 1991)</div></div>
-      <div class="st" data-reveal><div class="no">02</div><div class="h">불량 화소 보간</div><div class="d">검출기 결함으로 비어 있는 지점을 메움</div></div>
-      <div class="st" data-reveal><div class="no">03</div><div class="h">시선속도 보정</div><div class="d">강한 흡수선 7개로 도플러 이동을 직접 측정해 되돌림</div></div>
-      <div class="st" data-reveal><div class="no">04</div><div class="h">성간소광 보정</div><div class="d">먼지가 붉게 물들인 정도를 Cardelli 곡선으로 복원</div></div>
-      <div class="st" data-reveal><div class="no">05</div><div class="h">파장 구간 절단</div><div class="d">모든 서베이가 공통으로 갖는 4000–7400 Å만 사용</div></div>
-      <div class="st" data-reveal><div class="no">06</div><div class="h">이상값 제거</div><div class="d">우주선(cosmic ray)이 만든 뾰족한 신호를 걸러냄</div></div>
-      <div class="st" data-reveal><div class="no">07</div><div class="h">평활화</div><div class="d">흡수선 모양은 지키면서 잡음만 줄임 (Savitzky–Golay)</div></div>
-      <div class="st" data-reveal><div class="no">08</div><div class="h">연속선 정규화</div><div class="d">밝기·거리의 영향을 지워 선의 깊이만 남김</div></div>
-      <div class="st" data-reveal><div class="no">09</div><div class="h">공통 격자 정렬</div><div class="d">3,401개 화소로 맞춰 어떤 관측이든 같은 형식으로</div></div>
+
+    <div class="viewer" data-reveal>
+      <div class="vstage">
+        <img id="vimg" src="figures/step0.png" alt="전처리 단계별 스펙트럼">
+      </div>
+      <div class="vbar">
+        <button class="vbtn" id="vprev" aria-label="이전 단계">&#10094;</button>
+        <div class="dots" id="vdots"></div>
+        <div class="vnum" id="vnum">RAW</div>
+        <button class="vbtn" id="vnext" aria-label="다음 단계">&#10095;</button>
+      </div>
+      <div class="vcap">
+        <h3 id="vtitle">원본 관측 스펙트럼</h3>
+        <p id="vdesc">망원경이 기록한 그대로입니다.</p>
+      </div>
+      <div class="vhint">← → 방향키로도 넘길 수 있습니다</div>
     </div>
   </div>
 </section>
@@ -631,6 +655,85 @@ const ioRev = new IntersectionObserver(es => {
   }
 }, {threshold: 0.3});
 document.querySelectorAll('.panel').forEach(p => ioRev.observe(p));
+
+/* 안전장치 — 관찰자가 동작하지 않는 환경에서도 내용은 반드시 보이게 */
+function revealAll() {
+  document.querySelectorAll('[data-reveal]').forEach(el => el.classList.add('in'));
+}
+if (!('IntersectionObserver' in window)) revealAll();
+setTimeout(() => {                       // 2.5초 안에 아무것도 안 떴다면 전부 표시
+  if (!document.querySelector('[data-reveal].in')) revealAll();
+}, 2500);
+
+/* ── 전처리 단계 뷰어 ── */
+const STEPS = [
+  ['RAW', '원본 관측 스펙트럼',
+   'LAMOST 망원경이 기록한 그대로입니다. 붉은 쪽으로 완만히 기운 곡선(연속선) 위에 흡수선이 파여 있습니다. 여기엔 별 자신의 성질뿐 아니라 별의 운동, 사이에 낀 먼지, 검출기의 결함까지 뒤섞여 있습니다.'],
+  ['01', '진공 → 공기 파장 변환',
+   '서베이마다 파장을 진공 기준으로 적기도, 공기 기준으로 적기도 합니다. 기준이 다르면 같은 흡수선이 다른 파장에 놓입니다. Morton(1991)의 식으로 공기 기준에 통일했습니다 — Hβ 부근에서 약 1.4 Å 이동합니다.'],
+  ['02', '불량 화소 보간',
+   '검출기 결함이나 하늘빛 제거 과정에서 값이 비거나 음수가 된 지점이 이 별에는 20곳 있었습니다. 그대로 두면 없는 흡수선이 있는 것처럼 보이므로 이웃 값으로 메웁니다.'],
+  ['03', '시선속도(도플러) 보정',
+   '별이 다가오거나 멀어지면 모든 흡수선이 통째로 밀립니다. 강한 흡수선 7개의 위치를 직접 재서 속도를 구하고(이 별은 +25.1 km/s) 원래 자리로 되돌립니다. 확대창에서 선이 살짝 왼쪽으로 옮겨간 것을 볼 수 있습니다.'],
+  ['04', '성간소광 보정',
+   '별과 우리 사이의 먼지는 파란빛을 더 많이 가려, 별을 실제보다 붉고 차갑게 보이게 합니다. Cardelli 곡선으로 파장별 감쇠를 되돌립니다. 이 별은 Gaia에 값이 없어 프로그램이 스스로 A_V = 0.61등급으로 추정했고, 그 결과 파란 쪽이 더 크게 올라왔습니다.'],
+  ['05', '파장 구간 절단',
+   '모든 서베이가 공통으로 갖는 4,000–7,400 Å만 남깁니다. 양 끝은 감도가 낮아 잡음이 크고, 서베이마다 관측 범위가 달라 그대로 두면 애초에 비교가 불가능합니다.'],
+  ['06', '이상값 제거',
+   '우주선(cosmic ray)이 검출기에 남긴 뾰족한 신호를 걷어냅니다. 연속선보다 위로 3σ 넘게 튀어오른 값만 골라 제거하므로, 아래로 파인 진짜 흡수선은 건드리지 않습니다.'],
+  ['07', '평활화',
+   'Savitzky–Golay 필터(창 9화소, 3차 다항식)로 잡음만 줄입니다. 단순 평균과 달리 구간마다 다항식을 맞춰 깎기 때문에 흡수선의 깊이와 폭이 보존됩니다 — 이 값들이 뒤에서 온도와 표면중력을 재는 데 그대로 쓰입니다.'],
+  ['08', '연속선 정규화',
+   '3차 다항식으로 연속선(빨강 점선)을 추정해 나눕니다. 이것으로 별의 밝기와 거리, 관측 장비의 감도 차이가 한꺼번에 사라지고 흡수선의 상대적 깊이만 남습니다. 서로 다른 망원경의 별을 같은 잣대로 비교할 수 있게 만드는 가장 중요한 단계입니다.'],
+  ['09', '공통 격자 정렬',
+   '4,000–7,400 Å을 3,401개 화소로 다시 샘플링합니다. 어떤 관측이든 같은 길이·같은 파장의 배열이 되어 AI에 그대로 입력할 수 있습니다. 이 별의 최종 판정은 G형 5,858 K · 주계열 (신뢰도 97%)이었습니다.'],
+];
+STEPS.forEach((_, i) => { const im = new Image(); im.src = `figures/step${i}.png`; });
+
+const vimg = document.getElementById('vimg'), vnum = document.getElementById('vnum');
+const vtitle = document.getElementById('vtitle'), vdesc = document.getElementById('vdesc');
+const vprev = document.getElementById('vprev'), vnext = document.getElementById('vnext');
+const vdots = document.getElementById('vdots');
+let vi = 0, vActive = false;
+
+STEPS.forEach((_, i) => {
+  const d = document.createElement('div');
+  d.className = 'dot'; d.title = STEPS[i][1];
+  d.addEventListener('click', () => setStep(i));
+  vdots.appendChild(d);
+});
+
+function setStep(i) {
+  vi = Math.max(0, Math.min(i, STEPS.length - 1));
+  const [num, title, desc] = STEPS[vi];
+  vimg.src = `figures/step${vi}.png`;
+  vnum.textContent = num === 'RAW' ? 'RAW' : `${num} / 09`;
+  vtitle.textContent = title;
+  vdesc.textContent = desc;
+  vprev.disabled = vi === 0;
+  vnext.disabled = vi === STEPS.length - 1;
+  [...vdots.children].forEach((d, k) => {
+    d.classList.toggle('on', k === vi);
+    d.classList.toggle('done', k < vi);
+  });
+}
+setStep(0);
+vprev.addEventListener('click', () => setStep(vi - 1));
+vnext.addEventListener('click', () => setStep(vi + 1));
+
+/* 뷰어가 화면에 있을 때만 방향키가 단계를 넘김 (들어올 때 처음부터) */
+new IntersectionObserver(es => {
+  for (const e of es) {
+    vActive = e.isIntersecting;
+    if (!e.isIntersecting) setStep(0);
+  }
+}, {threshold: 0.5}).observe(document.querySelector('.viewer'));
+
+addEventListener('keydown', e => {
+  if (!vActive) return;
+  if (e.key === 'ArrowRight') { e.preventDefault(); setStep(vi + 1); }
+  else if (e.key === 'ArrowLeft') { e.preventDefault(); setStep(vi - 1); }
+});
 
 /* ── 진행 표시줄 ── */
 const prog = document.getElementById('prog');
