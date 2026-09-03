@@ -189,9 +189,14 @@
 
   /* ── 전처리 단계 뷰어 ── */
   .viewer { margin-top:clamp(8px,1.6vh,20px); }
-  .vstage { position:relative; }
-  .vstage img { width:100%; display:block; max-height:min(38vh,340px);
-                object-fit:contain; margin:0 auto; }
+  .vstage { position:relative; width:100%; height:min(38vh,340px); }
+  .vstage img {
+    position:absolute; inset:0; width:100%; height:100%;
+    object-fit:contain; opacity:0; transition:opacity .42s ease;
+  }
+  .vstage img.show { opacity:1; }
+  .vcap-in { transition:opacity .3s ease; }
+  .vcap-in.fade { opacity:0; }
   .vbar { margin-top:clamp(6px,1.2vh,14px); display:flex; align-items:center;
           gap:clamp(10px,1.6vw,22px); }
   .vbtn {
@@ -439,7 +444,8 @@
 
     <div class="viewer" data-reveal>
       <div class="vstage">
-        <img id="vimg" src="figures/step0.png" alt="전처리 단계별 스펙트럼">
+        <img id="vimgA" class="show" src="figures/step0.png" alt="전처리 단계별 스펙트럼">
+        <img id="vimgB" alt="">
       </div>
       <div class="vbar">
         <button class="vbtn" id="vprev" aria-label="이전 단계">&#10094;</button>
@@ -447,7 +453,7 @@
         <div class="vnum" id="vnum">RAW</div>
         <button class="vbtn" id="vnext" aria-label="다음 단계">&#10095;</button>
       </div>
-      <div class="vcap">
+      <div class="vcap vcap-in" id="vcap">
         <h3 id="vtitle">원본 관측 스펙트럼</h3>
         <p id="vdesc">망원경이 기록한 그대로입니다.</p>
       </div>
@@ -500,6 +506,11 @@
     <div class="fig wide" data-reveal style="margin-top:clamp(10px,2vh,26px)">
       <img src="figures/w_saha.png" alt="흡수선 세기와 온도의 관계 — 사하-볼츠만 법칙 재현">
     </div>
+    <p class="note" data-reveal style="margin-top:9px">
+      측정된 봉우리 — 수소 9,074 K(문헌 A0형 약 9,500 K), 헬륨 19,871 K(문헌 B2형 약 20,000 K).
+      음영 구간(4,000 K 미만)의 H·He 점선은 TiO 분자띠가 유사연속선을 눌러 생긴 과대평가로,
+      실제 물리가 아니라 저분해능 관측의 측정 한계입니다.
+    </p>
   </div>
 </section>
 
@@ -507,17 +518,22 @@
 <section class="panel">
   <div class="inner">
     <div class="micro" data-reveal>Evidence 02</div>
-    <h2 data-reveal>AI의 답만으로 H-R도가 다시 그려졌다</h2>
+    <h2 data-reveal>AI의 답만으로 별의 진화 구조가 드러났다</h2>
     <div class="split" style="margin-top:clamp(10px,2vh,24px)">
       <div>
         <p class="lead" data-reveal>
-          H-R도는 별의 온도와 광도를 두 축에 놓았을 때 별들이 아무 데나 흩어지지 않고
-          띠와 가지를 이룬다는, 20세기 천문학의 가장 중요한 발견 중 하나입니다.
-        </p>
-        <p class="lead" data-reveal style="margin-top:14px">
           이 그림에는 문헌값이 한 개도 들어가지 않았습니다. 오직 AI가 스펙트럼만 보고 답한
-          온도와 표면중력으로 점을 찍었을 뿐인데, <b>주계열과 적색거성가지</b>가 저절로 나타났습니다.
-          데이터를 외운 것이 아니라 별의 물리를 읽어냈다는 뜻입니다.
+          온도와 표면중력으로 점을 찍었을 뿐인데, <b>주계열과 적색거성가지</b>가 저절로 갈라져
+          나타났습니다. 데이터를 외운 것이 아니라 별의 물리를 읽어냈다는 뜻입니다.
+        </p>
+        <p class="lead" data-reveal style="margin-top:13px">
+          세로축이 광도가 아니라 <b>표면중력</b>인 점이 교과서의 H-R도와 다릅니다.
+          광도를 구하려면 별까지의 거리를 알아야 하는데 스펙트럼 한 장에는 거리 정보가 없습니다.
+          그래서 분광 관측에서는 광도 대신 표면중력을 쓰는 <b>Kiel 도(분광 H-R도)</b>를 씁니다.
+        </p>
+        <p class="note" data-reveal style="margin-top:11px">
+          교과서 H-R도에서 비스듬히 내려가던 주계열이 여기서는 가로로 누운 띠로 보입니다.
+          축이 다를 뿐, 주계열과 거성이 갈라진다는 물리는 같습니다.
         </p>
       </div>
       <div class="fig tall" data-reveal>
@@ -690,11 +706,12 @@ const STEPS = [
 ];
 STEPS.forEach((_, i) => { const im = new Image(); im.src = `figures/step${i}.png`; });
 
-const vimg = document.getElementById('vimg'), vnum = document.getElementById('vnum');
+const vimgA = document.getElementById('vimgA'), vimgB = document.getElementById('vimgB');
+const vnum = document.getElementById('vnum'), vcap = document.getElementById('vcap');
 const vtitle = document.getElementById('vtitle'), vdesc = document.getElementById('vdesc');
 const vprev = document.getElementById('vprev'), vnext = document.getElementById('vnext');
 const vdots = document.getElementById('vdots');
-let vi = 0, vActive = false;
+let vi = 0, vActive = false, vFront = vimgA, vCapTimer = null;
 
 STEPS.forEach((_, i) => {
   const d = document.createElement('div');
@@ -704,12 +721,35 @@ STEPS.forEach((_, i) => {
 });
 
 function setStep(i) {
-  vi = Math.max(0, Math.min(i, STEPS.length - 1));
+  const next = Math.max(0, Math.min(i, STEPS.length - 1));
+  const changed = next !== vi || !vFront.classList.contains('show');
+  vi = next;
   const [num, title, desc] = STEPS[vi];
-  vimg.src = `figures/step${vi}.png`;
+
+  // 그림 — 두 겹을 번갈아 띄워 부드럽게 교차
+  if (changed) {
+    const back = vFront === vimgA ? vimgB : vimgA;
+    const swap = () => {
+      back.classList.add('show');
+      vFront.classList.remove('show');
+      vFront = back;
+    };
+    back.src = `figures/step${vi}.png`;
+    if (back.complete && back.naturalWidth) swap();
+    else back.addEventListener('load', swap, {once: true});
+  }
+
+  // 설명 — 살짝 사라졌다 다시 나타남
+  const write = () => { vtitle.textContent = title; vdesc.textContent = desc; };
+  if (changed && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    clearTimeout(vCapTimer);
+    vcap.classList.add('fade');
+    vCapTimer = setTimeout(() => { write(); vcap.classList.remove('fade'); }, 160);
+  } else {
+    write();
+  }
+
   vnum.textContent = num === 'RAW' ? 'RAW' : `${num} / 09`;
-  vtitle.textContent = title;
-  vdesc.textContent = desc;
   vprev.disabled = vi === 0;
   vnext.disabled = vi === STEPS.length - 1;
   [...vdots.children].forEach((d, k) => {

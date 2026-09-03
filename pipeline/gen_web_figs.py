@@ -101,6 +101,11 @@ show = [('ew_Hbeta', 'Hβ 수소선', '#7fa8ff'),
         ('ew_TiO2', 'TiO 분자띠', '#e05545')]
 bins = np.logspace(np.log10(2800), np.log10(35000), 24)
 fig, ax = plt.subplots(figsize=(12, 6.6))
+# 4000 K 미만에서는 TiO 분자띠가 유사연속선을 눌러 원자선 등가폭이
+# 과대평가된다 — 측정 한계이므로 점선으로 구분해 표시한다.
+UNRELIABLE_BELOW = 4000.0
+CAVEAT = {'ew_Hbeta', 'ew_He4471'}
+
 for key, name, color in show:
     v = feat[:, fi[key]]
     xs, ys = [], []
@@ -109,7 +114,19 @@ for key, name, color in show:
         if m.sum() >= 15:
             xs.append(np.sqrt(bins[i] * bins[i + 1]))
             ys.append(np.median(v[m]))
-    ax.plot(xs, ys, 'o-', color=color, lw=2.8, ms=6, label=name)
+    xs, ys = np.array(xs), np.array(ys)
+    if key in CAVEAT:
+        hot = xs >= UNRELIABLE_BELOW
+        ax.plot(xs[hot], ys[hot], 'o-', color=color, lw=2.8, ms=6, label=name)
+        cool = xs <= UNRELIABLE_BELOW
+        j = np.where(hot)[0]
+        if j.size and cool.any():          # xs 는 오름차순 — 가장 찬 hot 점을 이어붙임
+            cool[j[0]] = True
+        ax.plot(xs[cool], ys[cool], ':', color=color, lw=2.2, alpha=.55)
+    else:
+        ax.plot(xs, ys, 'o-', color=color, lw=2.8, ms=6, label=name)
+
+ax.axvspan(2700, UNRELIABLE_BELOW, color='#ffffff', alpha=.04, zorder=0)
 ax.set_xscale('log')
 ax.set_xlim(36000, 2700)
 ticks = [30000, 20000, 10000, 7000, 5000, 3500]
