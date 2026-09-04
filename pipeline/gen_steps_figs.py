@@ -208,6 +208,63 @@ def draw(i):
 for i in range(10):
     draw(i)
 
+# ── 웹에서 선이 부드럽게 변형되도록 단계별 곡선을 JSON 으로 내보낸다 ──
+# 모든 단계를 동일한 격자에 올려 두면 브라우저가 점 대 점으로 섞을 수 있다.
+import json
+
+GRID_LO, GRID_HI, GRID_N = 3660.0, 9140.0, 1500      # 전체 보기
+ZOOM_LO, ZOOM_HI, ZOOM_N = 4838.0, 4886.0, 260       # Hβ 확대
+
+
+def sample(wv, fx, lo, hi, n):
+    xs = np.linspace(lo, hi, n)
+    ys = np.interp(xs, wv, fx, left=np.nan, right=np.nan)
+    return ys
+
+
+def norm01(ys, lo, hi):
+    out = (ys - lo) / (hi - lo)
+    return out
+
+
+web = []
+for i, (wv, fx, kind) in enumerate(stages):
+    # 표시 범위 (그림과 동일한 규칙)
+    if kind == 'norm':
+        xv = [WAVE_MIN - 60, WAVE_MAX + 60]
+        yv = [0.35, 1.42]
+    else:
+        xv = [3660.0, 9140.0] if i < 5 else [WAVE_MIN - 60, WAVE_MAX + 60]
+        vis = fx[(wv >= xv[0]) & (wv <= xv[1])]
+        top = float(np.percentile(vis, 99.7)) if len(vis) else 1.0
+        yv = [-0.04 * top, top * 1.16]
+
+    g = norm01(sample(wv, fx, GRID_LO, GRID_HI, GRID_N), yv[0], yv[1])
+
+    zs = sample(wv, fx, ZOOM_LO, ZOOM_HI, ZOOM_N)
+    fin = zs[np.isfinite(zs)]
+    if len(fin) > 4:                      # 확대창은 창 안에서 따로 정규화
+        zlo, zhi = float(fin.min()), float(fin.max())
+        pad = (zhi - zlo) * 0.12 or 1.0
+        z = norm01(zs, zlo - pad, zhi + pad)
+    else:
+        z = zs * np.nan
+
+    web.append({
+        'label': LABELS[i], 'kind': kind,
+        'xv': [round(v, 1) for v in xv], 'yv': [round(v, 4) for v in yv],
+        'y': [None if not np.isfinite(v) else round(float(v), 4) for v in g],
+        'z': [None if not np.isfinite(v) else round(float(v), 4) for v in z],
+    })
+
+meta = {'gridLo': GRID_LO, 'gridHi': GRID_HI, 'gridN': GRID_N,
+        'zoomLo': ZOOM_LO, 'zoomHi': ZOOM_HI, 'zoomN': ZOOM_N,
+        'stages': web}
+jp = os.path.join(OUT, 'steps.json')
+with open(jp, 'w', encoding='utf-8') as fh:
+    json.dump(meta, fh, separators=(',', ':'))
+print('JSON →', jp, f'{os.path.getsize(jp)/1024:.0f} KB')
+
 from PIL import Image
 sizes = {Image.open(os.path.join(OUT, f'step{i}.png')).size for i in range(10)}
 print('생성 10장, 크기 집합 =', sizes, '(1개면 정상)')
