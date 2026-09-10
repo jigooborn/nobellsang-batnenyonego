@@ -20,9 +20,11 @@ plt.rcParams.update({
     'text.color': FG, 'axes.labelcolor': FG,
     'xtick.color': DIM, 'ytick.color': DIM,
     'axes.edgecolor': '#3a3f48', 'grid.color': '#2a2e35',
-    'font.size': 13, 'axes.titlesize': 15, 'axes.labelsize': 13,
-    'xtick.labelsize': 12, 'ytick.labelsize': 12, 'legend.fontsize': 12,
-    'figure.dpi': 130,
+    # 작은 화면에서도 읽히도록 글자가 그림에서 차지하는 비율을 키운다
+    # (dpi 를 낮춰 픽셀 폭을 줄이면 같은 포인트 글자가 상대적으로 커진다)
+    'font.size': 15, 'axes.titlesize': 17, 'axes.labelsize': 15,
+    'xtick.labelsize': 14, 'ytick.labelsize': 14, 'legend.fontsize': 14,
+    'figure.dpi': 100,
 })
 
 CLASS_C = {'OB': '#7fa8ff', 'A': '#a9c0e8', 'F': '#f0dd7a',
