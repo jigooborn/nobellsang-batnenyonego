@@ -36,8 +36,13 @@
     letter-spacing:.22em; color:var(--dim); white-space:nowrap;
   }
   @media (max-width:620px){ .coords { font-size:8px; letter-spacing:.1em; } }
+  /* 좁은 데스크톱에서는 좌표와 메뉴가 부딪히므로 좌표를 접는다 */
+  @media (min-width:820px) and (max-width:1039px){
+    .coords { display:none; }
+    .nav-links { gap:22px; }
+  }
   .nav-links { display:none; gap:30px; }
-  @media (min-width:900px){ .nav-links { display:flex; } }
+  @media (min-width:820px){ .nav-links { display:flex; } }
   .nav-links a {
     font-size:11px; font-weight:600; letter-spacing:.2em; text-transform:uppercase;
     text-decoration:none; color:#cfd2d8; padding-bottom:4px;
@@ -164,8 +169,8 @@
 
   /* ── 좌우 분할 ── */
   .split { display:grid; gap:clamp(20px,3.4vh,48px); align-items:center; }
-  @media (min-width:960px){ .split { grid-template-columns:1fr 1fr; } }
-  @media (min-width:960px){ .split.narrow-left { grid-template-columns:5fr 7fr; } }
+  @media (min-width:820px){ .split { grid-template-columns:1fr 1fr; } }
+  @media (min-width:820px){ .split.narrow-left { grid-template-columns:5fr 7fr; } }
   .stack-metrics { display:grid; grid-template-columns:repeat(2,1fr); gap:1px;
                    background:var(--line); border:1px solid var(--line); }
   .stack-metrics > div { background:#000; padding:clamp(12px,2.2vh,26px) clamp(12px,1.4vw,20px); }
@@ -207,6 +212,9 @@
   }
   .vbtn:hover:not(:disabled) { background:#fff; color:#000; border-color:#fff; }
   .vbtn:disabled { opacity:.25; cursor:default; }
+  .vbtn:focus-visible, .dot:focus-visible, a:focus-visible {
+    outline:1px solid #6ea8ff; outline-offset:3px;
+  }
   .dots { flex:1; display:flex; gap:5px; align-items:center; }
   .dot { flex:1; height:2px; background:#2b3038; cursor:pointer; transition:background .25s; }
   .dot.on { background:#6ea8ff; }
@@ -216,7 +224,7 @@
   .vcap { margin-top:clamp(8px,1.5vh,18px); border-top:1px solid var(--line);
           padding-top:clamp(8px,1.5vh,16px);
           display:grid; gap:4px 24px; grid-template-columns:1fr; }
-  @media (min-width:860px){ .vcap { grid-template-columns:270px 1fr; } }
+  @media (min-width:820px){ .vcap { grid-template-columns:270px 1fr; } }
   .vcap h3 { font-size:clamp(13px,1vw,17px); font-weight:700; }
   .vcap p { color:var(--dim); font-size:clamp(11px,.76vw,13px); line-height:1.72; }
   .vhint { margin-top:8px; color:#4d525c; font-size:10px; letter-spacing:.12em; }
@@ -224,7 +232,7 @@
   /* ── 두 개의 눈 ── */
   .eyes { margin-top:clamp(14px,2.6vh,42px); display:grid; gap:clamp(10px,1.4vw,20px);
           grid-template-columns:1fr; }
-  @media (min-width:860px){ .eyes { grid-template-columns:1fr 1fr; } }
+  @media (min-width:820px){ .eyes { grid-template-columns:1fr 1fr; } }
   .eye { border:1px solid var(--line); border-top:2px solid var(--ec);
          padding:clamp(14px,2.4vh,30px) clamp(14px,1.5vw,26px); }
   .eye .k { font-size:10px; font-weight:600; letter-spacing:.2em; text-transform:uppercase; color:var(--ec); }
@@ -245,14 +253,38 @@
   /* 좁은 화면에서 설명이 번호 칸으로 밀려 들어가지 않도록 열을 못박는다 */
   .way .no { grid-column:1; }
   .way h3, .way p { grid-column:2; }
-  @media (min-width:860px){
-    .way { grid-template-columns:34px 250px 1fr; gap:16px; }
-    .way h3 { grid-column:2; } .way p { grid-column:3; }
-  }
+  /* 3열로 벌리면 좁은 칸 안에서 설명이 짜부라지므로 항상 2열로 둔다 */
+  @media (min-width:820px){ .way { gap:5px 16px; } }
   .way .no { font-family:'Inter'; font-weight:800; color:#3d434e; font-size:13px; letter-spacing:.16em; }
   .way h3 { font-size:clamp(12.5px,.95vw,16px); font-weight:700; }
   .way p { color:var(--dim); font-size:clamp(11px,.78vw,13px); line-height:1.7; margin-top:4px; }
-  @media (min-width:860px){ .way p { margin-top:0; } }
+  
+
+  /* ── 낮은 데스크톱 창 — 한 섹션이 한 화면을 넘지 않도록 압축 ──
+     (넘치면 스냅이 어색해지므로 여백과 글자를 함께 줄인다) */
+  @media (min-width:820px) and (max-height:760px){
+    .panel { padding:70px 4vw 40px; }
+    .hero { padding-bottom:56px; }
+    h2 { font-size:clamp(21px,2vw,30px); margin-bottom:9px; }
+    .lead { font-size:12.5px; line-height:1.68; }
+    .note { font-size:10.5px; line-height:1.55; }
+    .micro { margin-bottom:7px; }
+    .way p, .eye p, .fstep .d, .vcap p { font-size:11.5px; line-height:1.6; }
+    .way, .mi { padding:8px 0; }
+    .eye { padding:12px 18px; }
+    .fstep { padding:12px 16px; }
+    .cell { padding:12px 16px; }
+    .stack-metrics > div { padding:11px 14px; }
+    .verdict { margin-top:14px; }
+    .verdict .cap { margin-top:7px; }
+    .grid4, .funnel, .eyes, .ways, .metrics-grid { margin-top:14px; }
+    .vstage { height:32vh; }
+    .vcap { margin-top:8px; padding-top:8px; }
+    .vhint { margin-top:5px; }
+    .fig.wide img { max-height:36vh; }
+    .fig.tall img { max-height:44vh; }
+    .actions { margin-top:16px; }
+  }
 
   /* ── 모바일 (QR 로 들어오는 경우) ────────────────────────────── */
   @media (max-width:819px){
@@ -501,7 +533,7 @@
         <h3 id="vtitle">원본 관측 스펙트럼</h3>
         <p id="vdesc">망원경이 기록한 그대로입니다.</p>
       </div>
-      <div class="vhint">← → 방향키로도 넘길 수 있습니다</div>
+      <div class="vhint" id="vhint">← → 방향키로도 넘길 수 있습니다</div>
     </div>
   </div>
 </section>
@@ -643,6 +675,20 @@
 </div>
 
 <script>
+/* ── 모드 구분 — CSS 의 중단점(820px)과 반드시 같은 값 ──
+   데스크톱: 한 섹션 = 한 화면, 스냅 스크롤, 좌우 배치
+   모바일  : 자연 스크롤, 세로 배치, 큰 글자, 손가락 조작 */
+const MOBILE_Q = matchMedia('(max-width: 819px)');   // CSS 중단점과 동일한 기준
+const isDesktop = () => !MOBILE_Q.matches;
+const onModeChange = [];          // 모드가 바뀔 때 다시 맞출 것들이 등록된다
+function applyMode() {
+  document.body.dataset.mode = isDesktop() ? 'desktop' : 'mobile';
+  for (const fn of onModeChange) fn();
+}
+MOBILE_Q.addEventListener('change', applyMode);
+addEventListener('resize', applyMode);
+applyMode();
+
 /* ── 배경 별 ── */
 const cv = document.getElementById('stars'), cx = cv.getContext('2d');
 let stars = [];
@@ -977,15 +1023,27 @@ addEventListener('keydown', e => {
   }, {passive: true});
 })();
 
-/* 모바일에서는 그림을 좌우로 밀어 볼 수 있다고 알려준다 */
-if (innerWidth < 820) {
+/* 모드에 맞는 조작 안내 — 데스크톱은 방향키, 모바일은 손가락 */
+const vhint = document.getElementById('vhint');
+function modeHints() {
+  vhint.textContent = isDesktop()
+    ? '← → 방향키로도 넘길 수 있습니다'
+    : '손가락으로 좌우로 밀어 보세요';
+  const need = !isDesktop();
   document.querySelectorAll('.fig').forEach(f => {
-    const h = document.createElement('div');
-    h.className = 'swipehint';
-    h.textContent = '← 그림을 좌우로 밀어 보세요';
-    f.after(h);
+    const has = f.nextElementSibling?.classList.contains('swipehint');
+    if (need && !has) {
+      const t = document.createElement('div');
+      t.className = 'swipehint';
+      t.textContent = '← 그림을 좌우로 밀어 보세요';
+      f.after(t);
+    } else if (!need && has) {
+      f.nextElementSibling.remove();
+    }
   });
 }
+modeHints();
+onModeChange.push(modeHints, fitCanvas);   // 화면이 바뀌면 안내와 그래프를 다시 맞춘다
 
 /* ── 진행 표시줄 ── */
 const prog = document.getElementById('prog');
@@ -1029,18 +1087,19 @@ function glideTo(target) {
 }
 
 function snapCheck() {
-  if (snapping || innerWidth < 820 || performance.now() < hold) return;
+  if (snapping || !isDesktop() || performance.now() < hold) return;
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   const y = scrollY, h = innerHeight, pts = snapPts();
-  let i = -1;
-  for (let k = 0; k < pts.length; k++) if (pts[k] <= y + 2) i = k;
-  if (i < 0 || i >= pts.length - 1) return;
-  const here = pts[i], next = pts[i + 1];
-  if (next - here > h + 4) return;      // 내용이 화면보다 긴 섹션은 자유 스크롤
-  const offset = y - here;
-  if (offset < 2) return;
-  if (dirDown) glideTo(offset >= h / 3 ? next : here);
-  else glideTo(offset <= h * 2 / 3 ? here : next);
+  const maxY = document.documentElement.scrollHeight - h;
+  // 화면 안에 보이는 구분선을 기준으로 판단한다.
+  // 섹션 높이에 의존하지 않으므로 창이 낮아 내용이 넘쳐도 그대로 작동한다.
+  const p = pts.find(pt => pt > y + 6 && pt < y + h - 6);
+  if (p === undefined) return;              // 구분선이 안 보이면 자유 스크롤
+  const risen = y + h - p;                  // 구분선이 화면 바닥에서 올라온 거리
+  const commit = Math.min(p, maxY);         // 다음 화면으로 넘김
+  const revert = Math.max(0, Math.min(p - h, maxY));   // 보던 화면으로 되돌림
+  if (dirDown) glideTo(risen >= h / 3 ? commit : revert);
+  else glideTo(risen <= h * 2 / 3 ? revert : commit);
 }
 
 addEventListener('scroll', () => {
