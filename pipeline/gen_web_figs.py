@@ -208,7 +208,7 @@ for i in range(N_CLASSES):
 ax.set_xticks(range(N_CLASSES))
 ax.set_xticklabels(CLASS_ORDER, fontsize=15, color=FG)
 ax.set_yticks(range(N_CLASSES))
-ax.set_yticklabels([f'{c}  ({100*norm[k, k]:.0f}%)'
+ax.set_yticklabels([f'{c}  ({100*norm[k, k]:.1f}%)'
                     for k, c in enumerate(CLASS_ORDER)], fontsize=12.5, color=FG)
 ax.set_xlabel('AI 예측')
 ax.set_ylabel('정답 (재현율)')

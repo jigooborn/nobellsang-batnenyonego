@@ -402,28 +402,31 @@
     <p class="lead" data-reveal>
       천문학의 표준 참고자료 SIMBAD의 분광형은 1890년대 사진건판 분류까지
       거슬러 올라가는 소중한 축적 자료입니다. 본 연구의 AI는 이 라벨과
-      독립적으로 별을 재판정하고, 판정이 어긋난 별을 제3의 물리량(문헌 실측
-      온도)으로 심판해 갱신 검토가 필요한 별의 목록을 만들었습니다.
+      독립적으로 별을 재판정하고, 판정이 어긋난 별을 제3의 물리량(서베이가
+      실측한 온도)으로 심판해 갱신 검토가 필요한 별의 목록을 만들었습니다.
     </p>
 
     <div class="verdict" data-reveal>
-      <span class="from">B5</span>
+      <span class="from">F5</span>
       <span class="arr">→</span>
-      <span class="to">F형</span>
+      <span class="to">OB형</span>
       <div class="cap">
-        HD 338529 — SIMBAD 등록 분광형(B5)과 달리 AI는 F형으로 판정(신뢰도 96%).
-        독립 문헌 실측 온도 6,165 K 역시 F형 구간 — 등록 라벨의 갱신 검토를 시사.
+        HD 275900 — 1995년 문헌에 F5로 기록된 별을 AI는 OB형으로 판정(신뢰도 96%).
+        서베이가 실측한 온도 11,809 K 역시 OB형 구간 — 등록 라벨의 갱신 검토를 시사.
       </div>
     </div>
 
     <div class="grid4" data-reveal>
-      <div class="cell"><div class="n" data-count="469">469</div><div class="t">SIMBAD 등록 분광형과<br>대조한 별</div></div>
-      <div class="cell"><div class="n" data-count="111">111</div><div class="t">판정 불일치 —<br>문헌 온도로 심판</div></div>
-      <div class="cell"><div class="n" data-count="90">90</div><div class="t">독립 온도가<br>AI 판정을 지지</div></div>
-      <div class="cell"><div class="n" data-count="75">75</div><div class="t">갱신 검토 후보로<br>최종 선별된 라벨</div></div>
+      <div class="cell"><div class="n" data-count="5770">5,770</div><div class="t">SIMBAD 등록 분광형과<br>대조한 별</div></div>
+      <div class="cell"><div class="n" data-count="1645">1,645</div><div class="t">판정 불일치 —<br>실측 온도로 심판</div></div>
+      <div class="cell"><div class="n" data-count="1570">1,570</div><div class="t">실측 온도가<br>AI 판정을 지지</div></div>
+      <div class="cell"><div class="n" data-count="34">34</div><div class="t">두 등급 이상 어긋난<br>강한 재검토 후보</div></div>
     </div>
     <p class="note" data-reveal style="margin-top:12px">
-      '오류 확정'이 아니라 '재검토 후보'입니다. 최종 판단은 원 관측 자료를 가진 전문 연구자의 몫입니다.
+      <b>AI가 아무 데서나 어긋나는 것이 아닙니다.</b> SIMBAD가 스스로 매긴 라벨 품질등급이 낮을수록
+      정확히 그만큼 더 어긋납니다 — 최상 등급 100%, 최하 등급 57.3% 일치.
+      대조한 5,770개는 모두 학습에 쓰지 않은 별이며, 재검토 후보 1,225개 중 두 등급 이상 어긋난 34개를
+      강한 후보로 추렸습니다. '오류 확정'이 아니라 '후보 선별'입니다.
     </p>
   </div>
 </section>
@@ -485,9 +488,9 @@
     </p>
     <div class="funnel">
       <div class="fstep" data-reveal style="--fc:#5b8ede">
-        <div class="k">01 · 수집</div>
-        <div class="n" data-count="273301">273,301</div>
-        <div class="d">LAMOST · MaStar · SEGUE · MILES<br>4개 국제 서베이 (M형 보강 15,000 포함)</div>
+        <div class="k">01 · 수집·전처리</div>
+        <div class="n" data-count="273403">273,403</div>
+        <div class="d">LAMOST 182,293 · MaStar 59,266<br>SEGUE 30,859 · MILES 985</div>
       </div>
       <div class="fstep" data-reveal style="--fc:#3fbfa3">
         <div class="k">02 · 정답지</div>
@@ -495,14 +498,14 @@
         <div class="d">Gaia DR3 크로스매칭으로<br>같은 별을 그룹화 — 누수 차단</div>
       </div>
       <div class="fstep" data-reveal style="--fc:#f5b731">
-        <div class="k">03 · 선별</div>
-        <div class="n" data-count="108346">108,346</div>
-        <div class="d">온도 경계 ±75 K 버퍼 제외<br>서베이 층화 선별로 쏠림 방지</div>
+        <div class="k">03 · 학습</div>
+        <div class="n" data-count="109670">109,670</div>
+        <div class="d">원본 92,157 + 증강 17,513<br>증강은 학습에만 적용</div>
       </div>
       <div class="fstep" data-reveal style="--fc:#e8834a">
-        <div class="k">04 · 분리</div>
+        <div class="k">04 · 시험</div>
         <div class="n" data-count="16189">16,189</div>
-        <div class="d">시험 전용으로 완전히 떼어낸 별<br>학습 109,670 · 증강은 학습에만</div>
+        <div class="d">학습에 한 번도 등장하지 않은 별<br>전체 83,435개 별 그룹을 분할</div>
       </div>
     </div>
   </div>
@@ -652,7 +655,7 @@
     <p class="lead" data-reveal>
       코드 · 학습된 모델 · 테스트용 스펙트럼 4개가 공개되어 있습니다.
       압축을 풀고 파일 하나만 실행하면 첫 별을 분류할 수 있습니다 —
-      SIMBAD에 'B5'로 등록된 HD 338529의 재검증도 직접 재현해 볼 수 있습니다.
+      동봉된 별을 열면 판정 근거가 된 흡수선까지 화면에서 확인할 수 있습니다.
     </p>
     <div class="actions" data-reveal>
       <a class="btn solid" href="https://github.com/jigooborn/nobellsang-batnenyonego">GitHub Repository</a>
