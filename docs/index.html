@@ -914,7 +914,13 @@ function paint(S) {
     VC.fillText(t >= 1000 ? (t / 1000).toFixed(1) + 'k' : String(Math.round(t)),
                 X, main.y + main.h + 8);
   }
-  VC.fillText('4,861', zoom.x + zoom.w / 2, zoom.y + zoom.h + 8);
+  // 확대창에는 Hβ 위치만 세로선으로 표시 (숫자는 아래 라벨과 겹치므로 넣지 않는다)
+  {
+    const X = zoom.x + (4861.3 - DATA.zoomLo) / (DATA.zoomHi - DATA.zoomLo) * zoom.w;
+    VC.save(); VC.globalAlpha = .45; VC.strokeStyle = '#4a505b';
+    VC.setLineDash([3, 3]); VC.beginPath();
+    VC.moveTo(X, zoom.y + 2); VC.lineTo(X, zoom.y + zoom.h - 2); VC.stroke(); VC.restore();
+  }
 
   // 정규화 단계에서만 나타나는 기준선 1.0
   if (S.norm > 0.02) {
@@ -1115,6 +1121,31 @@ updateProgress();
 /* 내비게이션 클릭 직후엔 스냅이 개입하지 않도록 잠시 대기 */
 document.querySelectorAll('a[href^="#"]').forEach(a =>
   a.addEventListener('click', () => { hold = performance.now() + 1200; }));
+
+/* ↑ ↓ 방향키 — 한 화면씩 이동 (좌우는 전처리 뷰어 전용) */
+addEventListener('keydown', e => {
+  if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
+  if (e.altKey || e.ctrlKey || e.metaKey) return;
+  const t = e.target;                       // 입력 중일 때는 방해하지 않는다
+  if (t && typeof t.closest === 'function'
+      && t.closest('input, textarea, select, [contenteditable]')) return;
+  if (!isDesktop()) return;                 // 모바일은 평소대로 스크롤
+  e.preventDefault();
+  const pts = snapPts(), y = scrollY;
+  const maxY = document.documentElement.scrollHeight - innerHeight;
+  let target;
+  if (e.key === 'ArrowDown') {
+    const next = pts.find(pt => pt > y + 6);
+    target = next === undefined ? maxY : next;
+  } else {
+    const prev = [...pts].reverse().find(pt => pt < y - 6);
+    target = prev === undefined ? 0 : prev;
+  }
+  dirDown = e.key === 'ArrowDown';
+  hold = performance.now() + 700;           // 이동 중 스냅이 끼어들지 않게
+  clearTimeout(idleTimer);
+  glideTo(Math.max(0, Math.min(target, maxY)));
+});
 </script>
 
 </body>
