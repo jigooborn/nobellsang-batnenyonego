@@ -1,0 +1,5 @@
+# 연구 전체(전처리-학습-검증) 재현용 — pipeline/ 스크립트에 필요
+-r requirements.txt
+scikit-learn>=1.5
+astroquery>=0.4.7
+joblib>=1.4

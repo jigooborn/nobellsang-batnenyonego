@@ -1,9 +1,7 @@
+# 프로그램 실행에 필요한 최소 패키지
 numpy>=2.0
 scipy>=1.14
 pandas>=2.2
 astropy>=6.0
-scikit-learn>=1.5
 matplotlib>=3.9
 torch>=2.4
-astroquery>=0.4.7
-joblib>=1.4

@@ -1,23 +1,99 @@
 @echo off
-chcp 65001 >nul
-title í•­ì„± ë¶„ê´‘í˜• AI ë¶„ë¥˜ í”„ë¡œê·¸ëž¨
+chcp 949 >nul 2>nul
+setlocal
+cd /d "%~dp0"
+title Ç×¼º ºÐ±¤Çü AI ÀÚµ¿ ºÐ·ù ÇÁ·Î±×·¥
+
 echo.
-echo  ============================================
-echo   í•­ì„± ë¶„ê´‘í˜• AI ìžë™ ë¶„ë¥˜ í”„ë¡œê·¸ëž¨
-echo  ============================================
+echo  ==================================================
+echo    Ç×¼º ºÐ±¤Çü AI ÀÚµ¿ ºÐ·ù ÇÁ·Î±×·¥
+echo    ¸ñÃµ°íµîÇÐ±³  ÀÌÇÑ°á . ¸ÍÁøÈ£
+echo  ==================================================
 echo.
-where python >/dev/null 2>nul
-if errorlevel 1 (
-  echo  [!] Pythonì´ ì„¤ì¹˜ë˜ì–´ ìžˆì§€ ì•ŠìŠµë‹ˆë‹¤.
-  echo      https://www.python.org/downloads/ ì—ì„œ ì„¤ì¹˜í•  ë•Œ
-  echo      "Add Python to PATH" ì²´í¬ë°•ìŠ¤ë¥¼ ê¼­ ì„ íƒí•˜ì„¸ìš”.
+
+rem ---------- 1. ÆÄÀÌ½ã Ã£±â ----------
+set "PY="
+python --version >nul 2>nul
+if not errorlevel 1 set "PY=python"
+if not defined PY (
+  py --version >nul 2>nul
+  if not errorlevel 1 set "PY=py"
+)
+if not defined PY (
+  echo  [!] ÆÄÀÌ½ãÀÌ ¼³Ä¡µÇ¾î ÀÖÁö ¾Ê½À´Ï´Ù.
+  echo.
+  echo      https://www.python.org/downloads/
+  echo      À§ ÁÖ¼Ò¿¡¼­ ³»·Á¹Þ¾Æ ¼³Ä¡ÇØ ÁÖ¼¼¿ä.
+  echo      ¼³Ä¡ È­¸é¿¡¼­ "Add Python to PATH" ¸¦ ²À Ã¼Å©ÇØ¾ß ÇÕ´Ï´Ù.
   echo.
   pause
-  exit /b
+  exit /b 1
 )
-echo  [1/2] í•„ìš”í•œ ë¼ì´ë¸ŒëŸ¬ë¦¬ í™•ì¸ ì¤‘... (ì²˜ìŒ í•œ ë²ˆë§Œ ëª‡ ë¶„ ê±¸ë¦½ë‹ˆë‹¤)
-pip install -r requirements.txt --quiet
-echo  [2/2] í”„ë¡œê·¸ëž¨ ì‹¤í–‰!
+for /f "tokens=*" %%v in ('%PY% --version 2^>^&1') do set "PYVER=%%v"
+echo  [È®ÀÎ] %PYVER%
 echo.
-python classify_gui_v5.py
+
+rem ---------- 2. ¶óÀÌºê·¯¸® ¼³Ä¡ ----------
+%PY% -c "import numpy, scipy, pandas, astropy, matplotlib, torch" >nul 2>nul
+if not errorlevel 1 goto RUN
+
+echo  [1/2] ÇÊ¿äÇÑ ¶óÀÌºê·¯¸®¸¦ ¼³Ä¡ÇÕ´Ï´Ù.
+echo        Ã³À½ ÇÑ ¹ø¸¸ 5~10ºÐ Á¤µµ °É¸³´Ï´Ù. Ã¢À» ´ÝÁö ¸¶¼¼¿ä.
+echo.
+%PY% -m pip install --upgrade pip
+
+rem °¡º­¿î ÆÐÅ°Áö ¸ÕÀú (ÇÏ³ª°¡ ½ÇÆÐÇØµµ ³ª¸ÓÁö´Â ¼³Ä¡µÇµµ·Ï ´Ü°è¸¦ ³ª´®)
+%PY% -m pip install numpy scipy pandas astropy matplotlib
+%PY% -c "import numpy, scipy, pandas, astropy, matplotlib" >nul 2>nul
+if errorlevel 1 %PY% -m pip install --user numpy scipy pandas astropy matplotlib
+
+rem ÆÄÀÌÅäÄ¡´Â ¿ë·®ÀÌ Ä¿¼­ µû·Î (½ÇÆÐÇÏ¸é CPU Àü¿ë ÀúÀå¼Ò·Î Àç½Ãµµ)
+%PY% -c "import torch" >nul 2>nul
+if not errorlevel 1 goto CHECK
+echo.
+echo  [¼³Ä¡] ÆÄÀÌÅäÄ¡(AI ¿£Áø)¸¦ ³»·Á¹Þ½À´Ï´Ù. ¿ë·®ÀÌ Ä¿¼­ ½Ã°£ÀÌ °É¸³´Ï´Ù.
+echo.
+%PY% -m pip install torch
+%PY% -c "import torch" >nul 2>nul
+if not errorlevel 1 goto CHECK
+echo.
+echo  [Àç½Ãµµ] CPU Àü¿ë ÆÄÀÌÅäÄ¡·Î ´Ù½Ã ½ÃµµÇÕ´Ï´Ù...
+echo.
+%PY% -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+
+:CHECK
+%PY% -c "import numpy, scipy, pandas, astropy, matplotlib, torch" >nul 2>nul
+if not errorlevel 1 goto RUN
+
+echo.
+echo  [!] ¶óÀÌºê·¯¸® ¼³Ä¡¿¡ ½ÇÆÐÇß½À´Ï´Ù. ¾Æ·¡¸¦ È®ÀÎÇØ ÁÖ¼¼¿ä.
+echo.
+%PY% -c "import numpy" 2>nul || echo      - numpy ¼³Ä¡ ¾È µÊ
+%PY% -c "import scipy" 2>nul || echo      - scipy ¼³Ä¡ ¾È µÊ
+%PY% -c "import pandas" 2>nul || echo      - pandas ¼³Ä¡ ¾È µÊ
+%PY% -c "import astropy" 2>nul || echo      - astropy ¼³Ä¡ ¾È µÊ
+%PY% -c "import matplotlib" 2>nul || echo      - matplotlib ¼³Ä¡ ¾È µÊ
+%PY% -c "import torch" 2>nul || echo      - torch ¼³Ä¡ ¾È µÊ
+echo.
+echo      * ÀÎÅÍ³Ý ¿¬°á°ú ¹æÈ­º®À» È®ÀÎÇØ ÁÖ¼¼¿ä.
+echo      * torch ¸¸ ½ÇÆÐÇÑ´Ù¸é ÆÄÀÌ½ã ¹öÀüÀÌ ³Ê¹« ÃÖ½ÅÀÏ ¼ö ÀÖ½À´Ï´Ù.
+echo        ÆÄÀÌ½ã 3.12 ¹öÀüÀ» ¼³Ä¡ÇÏ¸é ´ëºÎºÐ ÇØ°áµË´Ï´Ù.
+echo        https://www.python.org/downloads/release/python-3127/
+echo.
+echo      Á÷Á¢ ¼³Ä¡ÇÏ·Á¸é ¸í·É ÇÁ·ÒÇÁÆ®¿¡¼­ ¾Æ·¡¸¦ ½ÇÇàÇÏ¼¼¿ä.
+echo        %PY% -m pip install -r requirements.txt
+echo.
+pause
+exit /b 1
+
+rem ---------- 3. ½ÇÇà ----------
+:RUN
+echo  [2/2] ÇÁ·Î±×·¥À» ½ÇÇàÇÕ´Ï´Ù.
+echo.
+%PY% classify_gui_v5.py
+if errorlevel 1 (
+  echo.
+  echo  [!] ÇÁ·Î±×·¥ÀÌ ¿À·ù·Î Á¾·áµÇ¾ú½À´Ï´Ù. À§ ¸Þ½ÃÁö¸¦ È®ÀÎÇØ ÁÖ¼¼¿ä.
+)
+echo.
 pause

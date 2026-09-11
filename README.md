@@ -69,12 +69,16 @@
 ## 💻 개발자용 — 명령줄 실행
 
 ```bash
-pip install -r requirements.txt
+python -m pip install -r requirements.txt        # 실행에 필요한 6개 패키지
 python classify_gui_v5.py samples/s0298.fits     # 파일 열어서 GUI 실행
 python classify_gui_v5.py 폴더경로 --batch 결과.csv  # GUI 없이 일괄 분류
 ```
 
-연구 전체(전처리→학습→검증) 재현은 [`pipeline/`](pipeline/) 폴더 참고.
+> ⚠️ 설치가 실패한다면 대부분 **파이썬 버전이 너무 최신이라 torch 휠이 없는 경우**입니다.
+> 파이썬 3.12 를 설치하면 해결됩니다. `시작하기.bat` 은 이 경우를 자동으로 알려줍니다.
+
+연구 전체(전처리→학습→검증) 재현은 [`pipeline/`](pipeline/) 폴더 참고
+(`python -m pip install -r requirements-full.txt` 필요).
 원본 스펙트럼(약 15GB)이 필요하며 아래 출처에서 받을 수 있습니다.
 
 ## 🗄 원본 데이터 받는 곳
