@@ -13,3 +13,4 @@ data/v5_*
 !samples/*.fits
 
 진단결과.txt
+오류기록.txt

@@ -39,6 +39,8 @@
 | **`samples/`** | 테스트용 별 스펙트럼 4개 | ✅ 첫 분류 해보기용 |
 | `classify_gui_v5.py` | 분류 프로그램 본체 | (bat이 대신 실행해줌) |
 | `models/`, `data/` | 학습된 AI 모델과 통계 | (프로그램이 자동으로 씀) |
+| **`진단하기.bat`** | 설치가 안 될 때 원인 찾기 | (문제 생겼을 때만) |
+| `setup_and_run.py` | 설치 확인 후 실행해 주는 스크립트 | (bat 이 자동으로 씀) |
 | `preprocess_core.py`, `train_v5.py` | 전처리·모델 정의 코드 | (프로그램이 자동으로 씀) |
 | `pipeline/` | 연구 전체를 재현하는 고급 스크립트 | ❌ 무시해도 됨 |
 | `docs/` | 소개 웹페이지 파일 | ❌ 무시해도 됨 |
@@ -74,8 +76,10 @@ python classify_gui_v5.py samples/s0298.fits     # 파일 열어서 GUI 실행
 python classify_gui_v5.py 폴더경로 --batch 결과.csv  # GUI 없이 일괄 분류
 ```
 
-> ⚠️ 설치가 실패한다면 대부분 **파이썬 버전이 너무 최신이라 torch 휠이 없는 경우**입니다.
-> 파이썬 3.12 를 설치하면 해결됩니다. `시작하기.bat` 은 이 경우를 자동으로 알려줍니다.
+> ⚠️ **설치가 안 될 때**: 폴더의 **`진단하기.bat`** 을 실행하면 원인을 찾아 알려줍니다.
+> 가장 흔한 원인은 **Visual C++ 재배포 패키지 누락**입니다 (torch 가 쓰는 DLL).
+> [vc_redist.x64.exe](https://aka.ms/vs/17/release/vc_redist.x64.exe) 를 설치하고
+> 컴퓨터를 다시 시작하면 해결됩니다.
 
 연구 전체(전처리→학습→검증) 재현은 [`pipeline/`](pipeline/) 폴더 참고
 (`python -m pip install -r requirements-full.txt` 필요).
