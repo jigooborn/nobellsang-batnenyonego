@@ -11,3 +11,5 @@ data/v5_*
 *.fit
 
 !samples/*.fits
+
+진단결과.txt

@@ -43,9 +43,9 @@ echo.
 %PY% -m pip install --upgrade pip
 
 rem 가벼운 패키지 먼저 (하나가 실패해도 나머지는 설치되도록 단계를 나눔)
-%PY% -m pip install numpy scipy pandas astropy matplotlib
+%PY% -m pip install --timeout 120 --retries 5 numpy scipy pandas astropy matplotlib
 %PY% -c "import numpy, scipy, pandas, astropy, matplotlib" >nul 2>nul
-if errorlevel 1 %PY% -m pip install --user numpy scipy pandas astropy matplotlib
+if errorlevel 1 %PY% -m pip install --user --timeout 120 --retries 5 numpy scipy pandas astropy matplotlib
 
 rem 파이토치는 용량이 커서 따로 (실패하면 CPU 전용 저장소로 재시도)
 %PY% -c "import torch" >nul 2>nul
@@ -53,13 +53,13 @@ if not errorlevel 1 goto CHECK
 echo.
 echo  [설치] 파이토치(AI 엔진)를 내려받습니다. 용량이 커서 시간이 걸립니다.
 echo.
-%PY% -m pip install torch
+%PY% -m pip install --timeout 180 --retries 5 torch
 %PY% -c "import torch" >nul 2>nul
 if not errorlevel 1 goto CHECK
 echo.
 echo  [재시도] CPU 전용 파이토치로 다시 시도합니다...
 echo.
-%PY% -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+%PY% -m pip install --timeout 180 --retries 5 torch --index-url https://download.pytorch.org/whl/cpu
 
 :CHECK
 %PY% -c "import numpy, scipy, pandas, astropy, matplotlib, torch" >nul 2>nul
@@ -81,7 +81,7 @@ echo        파이썬 3.12 버전을 설치하면 대부분 해결됩니다.
 echo        https://www.python.org/downloads/release/python-3127/
 echo.
 echo      직접 설치하려면 명령 프롬프트에서 아래를 실행하세요.
-echo        %PY% -m pip install -r requirements.txt
+echo        %PY% -m pip install --timeout 120 --retries 5 -r requirements.txt
 echo.
 pause
 exit /b 1
