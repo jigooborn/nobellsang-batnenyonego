@@ -57,6 +57,16 @@ def why(err):
     """오류 내용을 보고 원인과 해결책을 찾아 준다."""
     t = '{}: {}'.format(type(err).__name__, err)
     low = t.lower()
+    if 'winerror 1114' in low or 'initialization routine failed' in low \
+            or '초기화 루틴' in t:
+        return ('파이토치 DLL 은 찾았지만 초기화에 실패했습니다. '
+                'Visual C++ 런타임이 낡았거나, 이 CPU 가 최신 파이토치가 '
+                '요구하는 명령어(AVX2 등)를 지원하지 않을 때 생깁니다.',
+                ['1) 아래를 설치하고 컴퓨터를 다시 시작하세요 (1분):',
+                 '    ' + VCREDIST,
+                 '2) 그래도 안 되면 이전 버전 파이토치를 쓰세요:',
+                 '    "{}" -m pip install torch==2.5.1'.format(sys.executable),
+                 '   (시작하기.bat 이 이미 자동으로 시도합니다)'])
     if 'dll load failed' in low or 'winerror 126' in low or \
             'specified module could not be found' in low:
         return ('Visual C++ 재배포 패키지가 없어서입니다. '
@@ -113,6 +123,13 @@ def diagnose():
     say('실행파일: {}'.format(sys.executable))
     say('비트   : {}'.format('64bit' if sys.maxsize > 2 ** 32 else '32bit'))
     say('폴더   : {}'.format(HERE))
+    try:
+        import platform
+        say('윈도우 : {} {}'.format(platform.system(), platform.version()))
+        say('CPU    : {}'.format(
+            os.environ.get('PROCESSOR_IDENTIFIER', platform.processor())))
+    except Exception:
+        pass
     say('최신 폴더 여부: {}'.format(
         '예' if os.path.exists(os.path.join(HERE, 'setup_and_run.py'))
         else '아니오 — 새로 내려받으세요'))
@@ -183,6 +200,20 @@ def main():
             say()
             pip('torch')
         bad = check()
+
+    if 'torch' in bad and isinstance(bad['torch'], OSError):
+        # DLL 초기화 실패 등 — 최신 빌드가 이 컴퓨터와 맞지 않는 경우
+        say()
+        say(' [자동 조치] 이 컴퓨터에 맞는 이전 버전 파이토치를 시도합니다.')
+        say('            (지금 버전은 DLL 이 열리지 않습니다)')
+        say()
+        for ver in ('2.5.1', '2.2.2'):
+            pip('torch=={}'.format(ver), '--force-reinstall', '--no-cache-dir')
+            bad = check()
+            if 'torch' not in bad:
+                say()
+                say(' [성공] 파이토치 {} 로 해결되었습니다.'.format(ver))
+                break
 
     if bad:                                   # 사용자 폴더로 재시도
         say()
